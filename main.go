@@ -1,15 +1,15 @@
 package main
 
 import (
+  "crypto-tracker-api/cryptoRatesController"
+  "crypto-tracker-api/fetchCryptoRates"
+  "crypto-tracker-api/bitcoinRates"
   "fmt"
-  "net/http"
-  "log"
-  "github.com/robfig/cron"
-  "github.com/gorilla/mux"
   "github.com/gorilla/handlers"
-  "rest/fetchCryptoRates"
-  "rest/bitcoinRates"
-  "rest/cryptoRatesController"
+  "github.com/gorilla/mux"
+  "github.com/robfig/cron"
+  "log"
+  "net/http"
 )
 
 

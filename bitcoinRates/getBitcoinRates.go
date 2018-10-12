@@ -2,9 +2,8 @@ package bitcoinRates
 
 import (
   "database/sql"
-  _ "github.com/go-sql-driver/mysql"
-  "net/http"
   "encoding/json"
+  "net/http"
   "sort"
 )
 

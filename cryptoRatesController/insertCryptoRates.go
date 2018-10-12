@@ -6,17 +6,15 @@ import (
   _ "github.com/go-sql-driver/mysql"
   "database/sql"
   "time"
-  "rest/structs"
+  "crypto-tracker-api/structs"
 )
 
-
-type X struct {
+type CryptoRate struct {
   currency string
   date time.Time
   closingPrice float64
   min int
 }
-
 
 /**
  *
@@ -29,7 +27,7 @@ func InsertCryptoRates(rates []structs.BitcoinRate) {
   }
 
   query := `INSERT INTO crypto_rates (currency, date, closing_price, min)`
-  var queryValues []X
+  var queryValues []CryptoRate
 
   for _, rate := range rates {
     var replacer = strings.NewReplacer("T", " ", "Z", "")
@@ -42,19 +40,19 @@ func InsertCryptoRates(rates []structs.BitcoinRate) {
     timeOfCronJob := time.Now()
     minOfCronJob := timeOfCronJob.Minute()
 
-    var queryV X
-    queryV.currency = rate.Asset_id_quote
-    queryV.date = formattedDate
-    queryV.closingPrice = rate.Rate
-    queryV.min = minOfCronJob
+    var queryRate CryptoRate
+    queryRate.currency = rate.Asset_id_quote
+    queryRate.date = formattedDate
+    queryRate.closingPrice = rate.Rate
+    queryRate.min = minOfCronJob
 
     query += " VALUES(?,?,?,?),"
-    queryValues = append(queryValues, queryV)
+    queryValues = append(queryValues, queryRate)
   }
 
-  queryx := len(query)
-  if queryx > 0 && query[queryx-1] == ',' {
-    query = query[:queryx-1]
+  lq := len(query)
+  if lq > 0 && query[lq-1] == ',' {
+    query = query[:lq-1]
   }
 
   fmt.Println("Query >>>>")

@@ -1,11 +1,11 @@
 package fetchCryptoRates 
 
 import (
-  "net/http"
   "encoding/json"
   "fmt"
   "io/ioutil"
-  "rest/structs"
+  "net/http"
+  "crypto-tracker-api/structs"
 )
 
 
