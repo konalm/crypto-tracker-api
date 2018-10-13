@@ -1,4 +1,4 @@
-package fetchCryptoRates 
+package fetchCryptoRates
 
 import (
   "net/http"
@@ -14,6 +14,7 @@ import (
  */
 func FetchBitcoinRate() structs.BitcoinRate {
   client := &http.Client{}
+  var bitcoinRate structs.BitcoinRate
 
   request, err :=
     http.NewRequest("GET", "https://rest.coinapi.io/v1/exchangerate/BTC/USD", nil)
@@ -35,11 +36,6 @@ func FetchBitcoinRate() structs.BitcoinRate {
   }
 
   jsonBody := string(body)
-  var bitcoinRate structs.BitcoinRate
-
-  fmt.Println("fetch bitcoin rate response >>")
-  fmt.Println(jsonBody)
-
   json.Unmarshal([]byte(jsonBody), &bitcoinRate)
 
   return bitcoinRate

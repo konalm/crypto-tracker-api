@@ -10,14 +10,6 @@ import (
 )
 
 
-type X struct {
-  currency string
-  date time.Time
-  closingPrice float64
-  min int
-}
-
-
 /**
  *
  */
@@ -29,47 +21,71 @@ func InsertCryptoRates(rates []structs.BitcoinRate) {
   }
 
   query := `INSERT INTO crypto_rates (currency, date, closing_price, min)`
-  var queryValues []X
+  var queryValues = []interface{}{}
 
-  for _, rate := range rates {
-    var replacer = strings.NewReplacer("T", " ", "Z", "")
-    preparedDate := replacer.Replace(rate.Time)
-    formattedDate, err := time.Parse("2006-01-02 15:04:05", preparedDate)
-    if err != nil {
-      fmt.Println(err.Error())
-    }
+  timeOfCronJob := time.Now()
+  minOfCronJob := timeOfCronJob.Minute()
 
-    timeOfCronJob := time.Now()
-    minOfCronJob := timeOfCronJob.Minute()
-
-    var queryV X
-    queryV.currency = rate.Asset_id_quote
-    queryV.date = formattedDate
-    queryV.closingPrice = rate.Rate
-    queryV.min = minOfCronJob
-
-    query += " VALUES(?,?,?,?),"
-    queryValues = append(queryValues, queryV)
+  for i, rate := range rates {
+    query += buildRateModalQuery(rate, i)
+    formattedDate := formatDateForMysql(rate.Time)
+    queryValues = append(queryValues, rate.Asset_id_quote, formattedDate, rate.Rate, minOfCronJob)
   }
 
-  queryx := len(query)
-  if queryx > 0 && query[queryx-1] == ',' {
-    query = query[:queryx-1]
-  }
+  query = removeLastComma(query)
+  stmt, _ := db.Prepare(query)
 
-  fmt.Println("Query >>>>")
-  fmt.Println(query)
-
-  stmt, err := db.Prepare(query)
-  if err != nil {
-    panic(err.Error())
-  }
-
-  _, err = stmt.Exec(queryValues)
+  _, err = stmt.Exec(queryValues...)
   if err != nil {
     panic(err.Error())
   }
 
   defer stmt.Close()
   defer db.Close()
+}
+
+
+/**
+ * build query to insert single rate modal
+ */
+func buildRateModalQuery(rate structs.BitcoinRate, i int) string {
+  var query string
+
+  if i == 0 {
+    query += " VALUES"
+  }
+
+  query += " (?,?,?,?),"
+
+  return query
+}
+
+
+/**
+ *
+ */
+func formatDateForMysql(date string) time.Time {
+  var replacer = strings.NewReplacer("T", " ", "Z", "")
+  preparedDate := replacer.Replace(date)
+
+  formattedDate, err := time.Parse("2006-01-02 15:04:05", preparedDate)
+  if err != nil {
+    fmt.Println("Error: could not format date")
+  }
+
+  return formattedDate
+}
+
+
+/**
+ * Remove the last comma from the query string
+ */
+func removeLastComma(query string) string  {
+  queryx := len(query)
+
+  if queryx > 0 && query[queryx-1] == ',' {
+    query = query[:queryx-1]
+  }
+
+  return query
 }

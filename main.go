@@ -17,30 +17,21 @@ import (
  *
  */
 func main() {
-
-  cryptoRates := fetchCryptoRates.FetchCryptoRates()
-  cryptoRatesController.InsertCryptoRates(cryptoRates)
-
-  // fmt.Println(cryptoRates)
-
-
-
   router := mux.NewRouter()
-  router.HandleFunc("/rates", bitcoinRates.GetBitcoinRates).Methods("GET")
+  router.HandleFunc("/bitcoin-rates", bitcoinRates.GetBitcoinRates).Methods("GET")
+  router.HandleFunc("/crypto-currencies", cryptoRatesController.GetCryptoCurrencies).Methods("GET")
 
   c := cron.New()
   c.Start()
 
   c.AddFunc("0 */5 * * * *", func() {
-    fmt.Println("Every 5th min")
-    fmt.Println("call coin api every 5 mins")
+    fmt.Println("Run Cron")
+    
+    /* bitcoinRate := fetchCryptoRates.FetchBitcoinRate() */
+    /* bitcoinRates.InsertBitcoinRate(bitcoinRate) */
 
-    bitcoinRate := fetchCryptoRates.FetchBitcoinRate()
-    bitcoinRates.InsertBitcoinRate(bitcoinRate)
-
-    // cryptoRates := fetchCryptoRates.FetchCryptoRates()
-    //
-    // fmt.Println(cryptoRates)
+    cryptoRates := fetchCryptoRates.FetchCryptoRates()
+    cryptoRatesController.InsertCryptoRates(cryptoRates)
   })
 
   originsAllowed := handlers.AllowedOrigins([]string{"http://localhost:8081"})

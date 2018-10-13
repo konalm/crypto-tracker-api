@@ -61,13 +61,3 @@ func GetBitcoinRates(w http.ResponseWriter, r * http.Request) {
 
   json.NewEncoder(w).Encode(bitcoinRates)
 }
-
-
-// func main() {
-//   router := mux.NewRouter()
-//   router.HandleFunc("/rates", getLatestBitcoinRates).Methods("GET")
-//
-//   testpackage.PrintTest()
-//
-//   log.Fatal(http.ListenAndServe(":8484", router))
-// }
