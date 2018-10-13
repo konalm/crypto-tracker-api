@@ -3,10 +3,10 @@ package bitcoinRates
 import (
   "fmt"
   "strings"
-  _ "github.com/go-sql-driver/mysql"
   "database/sql"
+  _ "github.com/go-sql-driver/mysql"
   "time"
-  "rest/structs"
+  "crypto-tracker-api/structs"
 )
 
 
