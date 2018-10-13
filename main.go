@@ -1,21 +1,17 @@
 package main
 
 import (
-  "fmt"
-  "net/http"
-  "log"
-  "github.com/robfig/cron"
-  "github.com/gorilla/mux"
-  "github.com/gorilla/handlers"
-  "rest/fetchCryptoRates"
-  "rest/bitcoinRates"
-  "rest/cryptoRatesController"
+	"crypto-tracker-api/bitcoinRates"
+	"crypto-tracker-api/cryptoRatesController"
+	"crypto-tracker-api/fetchCryptoRates"
+	"fmt"
+	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
+	"github.com/robfig/cron"
+	"log"
+	"net/http"
 )
 
-
-/**
- *
- */
 func main() {
   router := mux.NewRouter()
   router.HandleFunc("/bitcoin-rates", bitcoinRates.GetBitcoinRates).Methods("GET")
@@ -26,7 +22,7 @@ func main() {
 
   c.AddFunc("0 */5 * * * *", func() {
     fmt.Println("Run Cron")
-    
+
     /* bitcoinRate := fetchCryptoRates.FetchBitcoinRate() */
     /* bitcoinRates.InsertBitcoinRate(bitcoinRate) */
 

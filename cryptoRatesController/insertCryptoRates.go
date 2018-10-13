@@ -1,12 +1,12 @@
 package cryptoRatesController
 
 import (
-  "fmt"
-  "strings"
-  _ "github.com/go-sql-driver/mysql"
-  "database/sql"
-  "time"
-  "rest/structs"
+	"crypto-tracker-api/structs"
+	"database/sql"
+	"fmt"
+	_ "github.com/go-sql-driver/mysql"
+	"strings"
+	"time"
 )
 
 

@@ -1,63 +1,59 @@
 package bitcoinRates
 
 import (
-  "database/sql"
-  _ "github.com/go-sql-driver/mysql"
-  "net/http"
-  "encoding/json"
-  "sort"
+	"database/sql"
+	"encoding/json"
+	"net/http"
+	"sort"
 )
 
+type BitcoinRate struct {
+	Date         string
+	ClosingPrice float64
+}
 
-/**
- *
- */
-func GetBitcoinRates(w http.ResponseWriter, r * http.Request) {
-  type BitcoinRate struct {
-    Date string
-    Closing_price float64
-  }
+const closingPriceQuery = `
+	SELECT date, closing_price
+	FROM bitcoin_rates
+	WHERE min in (0, 15, 30, 45)
+	ORDER BY date
+	DESC LIMIT 15
+`
 
-  /* open database connection */
-  db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/stelita_dev")
-  if err != nil {
-    panic(err.Error())
-  }
+func GetBitcoinRates(w http.ResponseWriter) {
+	db := getDBConnection(
+		"mysql",
+		"root:root@tcp(127.0.0.1:3306)/stelita_dev",
+	)
+	rows, err := db.Query(closingPriceQuery)
+	if err != nil {
+		panic(err.Error())
+	}
+	bitcoinRates := processRates(rows)
+	json.NewEncoder(w).Encode(bitcoinRates)
+}
 
-  /* get by 15min periods */
-  query :=
-    `SELECT date, closing_price
-    FROM bitcoin_rates
-    WHERE min = 0
-      OR min = 15
-      OR min = 30
-      OR min = 45
-    ORDER BY date DESC
-    LIMIT 15
-  `
+func getDBConnection(driverName string, dataSourceName string) *sql.DB {
+	db, err := sql.Open(driverName, dataSourceName)
+	if err != nil {
+		panic(err.Error())
+	}
+	return db
+}
 
-  rows, err := db.Query(query)
-  if err != nil {
-    panic(err.Error())
-  }
+func processRates(rows *sql.Rows) []BitcoinRate {
+	var bitcoinRates []BitcoinRate
+	for rows.Next() {
+		var bitcoinRate BitcoinRate
+		err := rows.Scan(&bitcoinRate.Date, &bitcoinRate.ClosingPrice)
+		if err != nil {
+			panic(err.Error())
+		}
+		bitcoinRates = append(bitcoinRates, bitcoinRate)
+	}
+	sort.SliceStable(bitcoinRates, func(i, j int) bool {
+		return bitcoinRates[i].Date < bitcoinRates[j].Date
+	})
 
-  var bitcoinRates []BitcoinRate
-
-  for rows.Next() {
-    var bitcoinRate BitcoinRate
-
-    err := rows.Scan(&bitcoinRate.Date, &bitcoinRate.Closing_price)
-    if err != nil {
-      panic(err.Error())
-    }
-
-    bitcoinRates = append(bitcoinRates, bitcoinRate)
-  }
-
-  /* sort by lowest dates */
-  sort.SliceStable(bitcoinRates, func(i, j int) bool {
-    return bitcoinRates[i].Date < bitcoinRates[j].Date
-  })
-
-  json.NewEncoder(w).Encode(bitcoinRates)
+	return bitcoinRates
 }
