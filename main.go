@@ -8,13 +8,19 @@ import (
   "github.com/gorilla/handlers"
   "crypto-tracker-api/router"
   "crypto-tracker-api/cronJobs"
+  "crypto-tracker-api/fetchCryptoRates"
 )
+
 
 func main() {
   err := godotenv.Load()
   if err != nil {
     log.Fatal("Error loading .env file")
   }
+
+  fetchCryptoRates.FetchRankedCryptoCurrencies()
+
+
 
   appRouter := router.Index()
 

@@ -14,7 +14,6 @@ type ApiResponse struct {
   Rates []structs.BitcoinRate
 }
 
-
 /**
  *
  */

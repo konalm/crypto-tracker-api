@@ -15,9 +15,6 @@ import (
  *
  */
 func InsertBitcoinRate(rate structs.BitcoinRate) {
-  fmt.Println("insert bitcoin rate >>")
-  fmt.Println(rate)
-
   var replacer = strings.NewReplacer("T", " ", "Z", "")
   preparedDate := replacer.Replace(rate.Time)
 
