@@ -20,7 +20,7 @@ const closingPriceQuery = `
 	DESC LIMIT 15
 `
 
-func GetBitcoinRates(w http.ResponseWriter) {
+func GetBitcoinRates(w http.ResponseWriter, r *http.Request) {
 	db := getDBConnection(
 		"mysql",
 		"root:root@tcp(127.0.0.1:3306)/stelita_dev",

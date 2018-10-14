@@ -1,38 +1,28 @@
 package main
 
 import (
-	"crypto-tracker-api/bitcoinRates"
-	"crypto-tracker-api/cryptoRatesController"
-	"crypto-tracker-api/fetchCryptoRates"
-	"fmt"
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
-	"github.com/robfig/cron"
-	"log"
-	"net/http"
+  "log"
+  "net/http"
+  "os"
+  "github.com/joho/godotenv"
+  "github.com/gorilla/handlers"
+  "crypto-tracker-api/router"
+  "crypto-tracker-api/cronJobs"
 )
 
 func main() {
-  router := mux.NewRouter()
-  router.HandleFunc("/bitcoin-rates", bitcoinRates.GetBitcoinRates).Methods("GET")
-  router.HandleFunc("/crypto-currencies", cryptoRatesController.GetCryptoCurrencies).Methods("GET")
+  err := godotenv.Load()
+  if err != nil {
+    log.Fatal("Error loading .env file")
+  }
 
-  c := cron.New()
-  c.Start()
+  appRouter := router.Index()
 
-  c.AddFunc("0 */5 * * * *", func() {
-    fmt.Println("Run Cron")
+	cronJobs.HandleBitcoinRate()
 
-    /* bitcoinRate := fetchCryptoRates.FetchBitcoinRate() */
-    /* bitcoinRates.InsertBitcoinRate(bitcoinRate) */
-
-    cryptoRates := fetchCryptoRates.FetchCryptoRates()
-    cryptoRatesController.InsertCryptoRates(cryptoRates)
-  })
-
-  originsAllowed := handlers.AllowedOrigins([]string{"http://localhost:8081"})
+  originsAllowed := handlers.AllowedOrigins([]string{os.Getenv("ALLOWED_CLIENT")})
   headersAllowed := handlers.AllowedHeaders([]string{"X-Requested-With"})
   methodsAllowed := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 
-  log.Fatal(http.ListenAndServe(":8484", handlers.CORS(originsAllowed, headersAllowed, methodsAllowed)(router)))
+  log.Fatal(http.ListenAndServe(":8484", handlers.CORS(originsAllowed, headersAllowed, methodsAllowed)(appRouter)))
 }
