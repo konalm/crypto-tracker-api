@@ -45,13 +45,6 @@ func FetchCryptoRates() []structs.BitcoinRate {
 
   json.Unmarshal([]byte(jsonBody), &apiResponse)
 
-  //
-  // var cryptoRates []structs.BitcoinRate
-  //
-  // for _, cryptoRate := range apiResponse.Rates {
-  //   fmt.Println("in foreach rate of api response >>>> ")
-  //   fmt.Println(cryptoRate)
-  // }
 
   return apiResponse.Rates
 }

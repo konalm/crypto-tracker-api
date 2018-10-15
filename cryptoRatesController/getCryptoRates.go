@@ -5,8 +5,25 @@ import (
   _ "github.com/go-sql-driver/mysql"
   "net/http"
   "encoding/json"
-  "fmt"
+  "crypto-tracker-api/rankedCryptoCurrency"
 )
+
+
+type CryptoRate struct {
+  Currency string
+  Date string
+  Closing_price float64
+  Min int
+}
+
+type CryptoCurrency struct {
+  Name string
+  Symbol string
+  Rank int
+  Market_cap float64
+  Volume_24h float64
+  Rates []CryptoRate
+}
 
 
 /**
@@ -51,14 +68,7 @@ func GetCryptoCurrencies(w http.ResponseWriter, r * http.Request) {
  *
  */
 func GetCryptoCurrencyRates(w http.ResponseWriter, r *http.Request) {
-  fmt.Println("get crypto currency rates")
-
-  type CryptoCurrencyRate struct {
-    Currency string
-    Date string
-    Closing_price float64
-    Min int
-  }
+  rankedCryptoCurrencySymbols := rankedCryptoCurrency.GetSymbols()
 
   /* open database connection */
   db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/stelita_dev")
@@ -66,31 +76,65 @@ func GetCryptoCurrencyRates(w http.ResponseWriter, r *http.Request) {
     panic(err.Error())
   }
 
-  query := `SELECT currency, date, closing_price, min FROM crypto_rates LIMIT 40000`
+  query :=
+    `SELECT ranked_cryptos.name, ranked_cryptos.symbol, ranked_cryptos.rank,
+      ranked_cryptos.market_cap, ranked_cryptos.volume_24h,
+      crypto_rates.date, crypto_rates.closing_price, crypto_rates.min
+    FROM ranked_crypto_currencies ranked_cryptos
+    LEFT JOIN crypto_rates
+      ON crypto_rates.currency = ranked_cryptos.symbol`
 
-  rows, err := db.Query(query)
+  queryValues := []interface{}{}
+
+  for index, symbol := range rankedCryptoCurrencySymbols {
+    if index == 0 {
+      query += " WHERE"
+    } else {
+      query += " OR"
+    }
+
+    query += " currency = ?"
+    queryValues = append(queryValues, symbol)
+  }
+
+  query +=
+    ` ORDER BY date DESC
+    LIMIT 1500`
+
+  rows, err := db.Query(query, queryValues...)
   if err != nil {
     panic(err.Error())
   }
 
-  var cryptoCurrencyRates = make(map[string][]CryptoCurrencyRate)
+  var cryptoCurrencies = make(map[string]CryptoCurrency)
 
   for rows.Next() {
-    var cryptoCurrencyRate CryptoCurrencyRate
+    var cryptoCurrency CryptoCurrency
+    var cryptoRate CryptoRate
 
     err := rows.Scan(
-      &cryptoCurrencyRate.Currency,
-      &cryptoCurrencyRate.Date,
-      &cryptoCurrencyRate.Closing_price,
-      &cryptoCurrencyRate.Min,
+      &cryptoCurrency.Name,
+      &cryptoCurrency.Symbol,
+      &cryptoCurrency.Rank,
+      &cryptoCurrency.Market_cap,
+      &cryptoCurrency.Volume_24h,
+      &cryptoRate.Date,
+      &cryptoRate.Closing_price,
+      &cryptoRate.Min,
     )
     if err != nil {
       panic(err.Error())
     }
 
-    cryptoCurrencyRates[cryptoCurrencyRate.Currency] =
-      append(cryptoCurrencyRates[cryptoCurrencyRate.Currency], cryptoCurrencyRate)
+    if _, ok := cryptoCurrencies[cryptoCurrency.Name]; ok == false {
+      cryptoCurrencies[cryptoCurrency.Name] = cryptoCurrency
+    }
+
+    /* cannot assign to struct field in map workaround */
+    var x = cryptoCurrencies[cryptoCurrency.Name]
+    x.Rates = append(x.Rates, cryptoRate)
+    cryptoCurrencies[cryptoCurrency.Name] = x
   }
 
-  json.NewEncoder(w).Encode(cryptoCurrencyRates)
+  json.NewEncoder(w).Encode(cryptoCurrencies)
 }

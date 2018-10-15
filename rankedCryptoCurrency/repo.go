@@ -7,7 +7,9 @@ import (
   "crypto-tracker-api/utils"
 )
 
-
+/**
+ *
+ */
 func InsertRankedCryptoCurrencies(
   cryptoCurrencies map[string] structs.RankedCryptoCurrency,
 ) {
@@ -50,6 +52,9 @@ func InsertRankedCryptoCurrencies(
 }
 
 
+/**
+ *
+ */
 func DestroyCurrentRankedCryptoCurrencies() {
   /* open database connection */
   db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/stelita_dev")
@@ -63,4 +68,35 @@ func DestroyCurrentRankedCryptoCurrencies() {
   }
 
   defer destroy.Close()
+}
+
+/**
+ *
+ */
+func GetSymbols() []string {
+  /* open database connection */
+  db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/stelita_dev")
+  if err != nil {
+    panic(err.Error())
+  }
+
+  rows, err := db.Query("SELECT symbol FROM ranked_crypto_currencies")
+  if err != nil {
+    panic("ERROR getting symbols from ranked crypto currencies")
+  }
+
+  var symbols []string
+
+  for rows.Next() {
+    var symbol string
+
+    err := rows.Scan(&symbol)
+    if err != nil {
+      panic(err.Error())
+    }
+
+    symbols = append(symbols, symbol)
+  }
+
+  return symbols
 }
