@@ -2,28 +2,65 @@ package rankedCryptoCurrency
 
 import (
   "database/sql"
-  "fmt"
   _ "github.com/go-sql-driver/mysql"
   "crypto-tracker-api/structs"
+  "crypto-tracker-api/utils"
 )
 
 
-/**
- *
- */
-func InsertRankedCryptoCurrencies(cryptoCurrencies []structs.RankedCryptoCurrency) {
-  fmt.Println("insert ranked cryptos")
-  
-  query := `INSERT INTO ranked_crypto_currencies ()`
-
+func InsertRankedCryptoCurrencies(
+  cryptoCurrencies map[string] structs.RankedCryptoCurrency,
+) {
   /* open database connection */
   db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/stelita_dev")
   if err != nil {
     panic(err.Error())
   }
 
+  query :=
+    `INSERT INTO ranked_crypto_currencies
+    (name, symbol, rank, market_cap, volume_24h)`
+  queryValues := []interface{}{}
+
+  count := 0
   for _, crypto := range cryptoCurrencies {
-    fmt.Println("in crypto loop")
-    fmt.Println(crypto)
+    if (count == 0) { query += " VALUES" }
+
+    query += " (?,?,?,?,?),"
+    quote := crypto.Quotes["USD"]
+
+    queryValues = append(
+      queryValues,
+      crypto.Name, crypto.Symbol, crypto.Rank, quote.Market_cap, quote.Volume_24h,
+    )
+
+    count++;
   }
+
+  query = utils.RemoveLastComma(query)
+  stmt, _ := db.Prepare(query)
+
+  _, err = stmt.Exec(queryValues...)
+  if err != nil {
+    panic("ERROR executing query" + err.Error())
+  }
+
+  defer stmt.Close()
+  defer db.Close()
+}
+
+
+func DestroyCurrentRankedCryptoCurrencies() {
+  /* open database connection */
+  db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/stelita_dev")
+  if err != nil {
+    panic(err.Error())
+  }
+
+  destroy, err := db.Query("DELETE FROM ranked_crypto_currencies")
+  if err != nil {
+    panic("ERROR destroying current ranked crpyot currencies")
+  }
+
+  defer destroy.Close()
 }

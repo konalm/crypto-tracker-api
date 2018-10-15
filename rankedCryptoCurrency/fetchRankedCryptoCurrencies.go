@@ -18,7 +18,7 @@ type CoinMarketGapApiResponse struct {
  */
 func FetchRankedCryptoCurrencies() map[string] structs.RankedCryptoCurrency {
   client := &http.Client{}
-  url := "https://api.coinmarketcap.com/v2/ticker/?limit=4"
+  url := "https://api.coinmarketcap.com/v2/ticker/?limit=100"
   request, err := http.NewRequest("GET", url, nil)
 
   resp, err := client.Do(request)

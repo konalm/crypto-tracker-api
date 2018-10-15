@@ -15,7 +15,7 @@ type RankedCryptoCurrency struct {
 
 type Quote struct {
   Price float64
-  Volumne_24h float64
+  Volume_24h float64
   Market_cap float64
   Percent_change_1h float64
   Percent_change_24h float64

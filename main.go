@@ -8,7 +8,6 @@ import (
   "github.com/gorilla/handlers"
   "crypto-tracker-api/router"
   "crypto-tracker-api/cronJobs"
-  "crypto-tracker-api/fetchCryptoRates"
 )
 
 
@@ -18,13 +17,10 @@ func main() {
     log.Fatal("Error loading .env file")
   }
 
-  fetchCryptoRates.FetchRankedCryptoCurrencies()
-
-
-
   appRouter := router.Index()
 
 	cronJobs.HandleBitcoinRate()
+  cronJobs.HandleRankedCryptoCurrencyUpdate()
 
   originsAllowed := handlers.AllowedOrigins([]string{os.Getenv("ALLOWED_CLIENT")})
   headersAllowed := handlers.AllowedHeaders([]string{"X-Requested-With"})
