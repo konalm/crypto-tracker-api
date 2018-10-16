@@ -6,7 +6,7 @@ import (
   "net/http"
   "encoding/json"
   "crypto-tracker-api/rankedCryptoCurrency"
-  "fmt"
+  // "fmt"
   "sort"
 )
 
@@ -139,10 +139,6 @@ func GetCryptoCurrencyRates(w http.ResponseWriter, r *http.Request) {
   }
 
   cryptoCurrencies = limitCryptoCurrencyRates(cryptoCurrencies)
-
-  for _, c := range cryptoCurrencies {
-    fmt.Println( len(c.Rates) )
-  }
 
   json.NewEncoder(w).Encode(cryptoCurrencies)
 }
