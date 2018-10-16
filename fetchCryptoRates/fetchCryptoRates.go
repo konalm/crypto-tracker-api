@@ -45,6 +45,5 @@ func FetchCryptoRates() []structs.BitcoinRate {
 
   json.Unmarshal([]byte(jsonBody), &apiResponse)
 
-
   return apiResponse.Rates
 }

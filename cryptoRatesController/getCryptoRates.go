@@ -6,6 +6,8 @@ import (
   "net/http"
   "encoding/json"
   "crypto-tracker-api/rankedCryptoCurrency"
+  "fmt"
+  "sort"
 )
 
 
@@ -27,7 +29,7 @@ type CryptoCurrency struct {
 
 
 /**
- *
+ * slice rates from crypto currencies that are greater that 15 periods ago
  */
 func GetCryptoCurrencies(w http.ResponseWriter, r * http.Request) {
   type CryptoCurrency struct {
@@ -136,5 +138,34 @@ func GetCryptoCurrencyRates(w http.ResponseWriter, r *http.Request) {
     cryptoCurrencies[cryptoCurrency.Name] = x
   }
 
+  cryptoCurrencies = limitCryptoCurrencyRates(cryptoCurrencies)
+
+  for _, c := range cryptoCurrencies {
+    fmt.Println( len(c.Rates) )
+  }
+
   json.NewEncoder(w).Encode(cryptoCurrencies)
+}
+
+
+/**
+ *
+ */
+func limitCryptoCurrencyRates(cryptoCurrencies map[string]CryptoCurrency) map[string]CryptoCurrency {
+  for currency, cryptoCurrency := range cryptoCurrencies {
+    sort.Slice(cryptoCurrency.Rates, func(x, y int) bool {
+      return cryptoCurrency.Rates[x].Date < cryptoCurrency.Rates[y].Date
+    })
+
+    rateCount := len(cryptoCurrency.Rates)
+
+    if rateCount > 15 {
+      sliceAmount := rateCount - 15
+
+      cryptoCurrency.Rates = cryptoCurrency.Rates[sliceAmount:rateCount]
+      cryptoCurrencies[currency] = cryptoCurrency
+    }
+  }
+
+  return cryptoCurrencies
 }
