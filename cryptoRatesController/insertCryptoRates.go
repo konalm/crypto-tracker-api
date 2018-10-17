@@ -29,6 +29,9 @@ func InsertCryptoRates(rates []structs.BitcoinRate) {
   for i, rate := range rates {
     query += buildRateModalQuery(rate, i)
     formattedDate := formatDateForMysql(rate.Time)
+
+		if rate.Asset_id_quote == "USD" { rate.Asset_id_quote = "BTC" }
+
     queryValues = append(queryValues, rate.Asset_id_quote, formattedDate, rate.Rate, minOfCronJob)
   }
 
