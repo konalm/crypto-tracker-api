@@ -1,0 +1,24 @@
+package abstractRatesByTimePeriod
+
+import (
+  // "fmt"
+  "crypto-tracker-api/structs"
+)
+
+
+/**
+ *
+ */
+func FifteenMinPeriods(rates []structs.CryptoRate) []structs.CryptoRate {
+  // fmt.Println("fifteen min periods")
+
+  var ratesIn15MinPeriod []structs.CryptoRate
+
+  for _, rate := range rates {
+    if rate.Min == 0 || rate.Min == 15 || rate.Min == 30 || rate.Min == 45 {
+      ratesIn15MinPeriod = append(ratesIn15MinPeriod, rate)
+    }
+  }
+
+  return Latest15Rates(ratesIn15MinPeriod)
+}

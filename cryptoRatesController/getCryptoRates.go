@@ -6,7 +6,7 @@ import (
   "net/http"
   "encoding/json"
   "crypto-tracker-api/rankedCryptoCurrency"
-  "fmt"
+  // "fmt"
   "sort"
 )
 
@@ -24,6 +24,7 @@ type CryptoCurrency struct {
   Rank int
   Market_cap float64
   Volume_24h float64
+  Img *string
   Rates []CryptoRate
 }
 
@@ -66,74 +67,14 @@ func GetCryptoCurrencies(w http.ResponseWriter, r * http.Request) {
 }
 
 
-
-// func GetBitcoinRates() {
-//   fmt.Println("get bitcoin rates")
-//
-//   /* open database connection */
-//   db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/stelita_dev")
-//   if err != nil {
-//     panic(err.Error())
-//   }
-//
-//   query :=
-//     `SELECT ranked_cryptos.name, ranked_cryptos.symbol, ranked_cryptos.rank,
-//       ranked_cryptos.market_cap, ranked_cryptos.volume_24h,
-//       crypto_rates.date, crypto_rates.closing_price, crypto_rates.min
-//     FROM ranked_crypto_currencies ranked_cryptos
-//     WHERE name = "Bitcoin"
-//     LEFT JOIN crypto_rates
-//       ON crypto_rates.currency = "USD"`
-//
-//       `SELECT ranked_cryptos.name, ranked_cryptos.symbol, ranked_cryptos.rank,
-//         ranked_cryptos.market_cap, ranked_cryptos.volume_24h
-//       FROM ranked_crypto_currencies ranked_cryptos
-//       WHERE name = "Bitcoin"
-//
-//       UNION
-//
-//       SELECT crypto_rates.date, crypto_rates.closing_price, crypto_rates.min
-//       FROM crypto_rates
-//       WHERE currency = "USD"`
-//
-//
-//   rows, err := db.Query(query)
-//   if err != nil {
-//     panic(err.Error())
-//   }
-//
-//   var cryptoCurrencies = make([map[string]CryptoCurrency)
-//
-//   for rows.Next() {
-//     err := rows.Scan(
-//       &cryptoCurrency.Name,
-//       &cryptoCurrency.Symbol,
-//       &cryptoCurrency.Rank,
-//       &cryptoCurrency.Market_cap,
-//       &cryptoCurrency.Volume_24h,
-//       &cryptoRate.Date,
-//       &cryptoRate.Closing_price,
-//       &cryptoRate.Min,
-//     )
-//     if err != nil {
-//       panic(err.Error())
-//     }
-//
-//     fmt.Println("crypto")
-//   }
-// }
-
-
-
 /**
  *
  */
 func GetCryptoCurrencyRates(w http.ResponseWriter, r *http.Request) {
   rankedCryptoCurrencySymbols := rankedCryptoCurrency.GetSymbols()
-  // rankedCryptoCurrencySymbols = append(rankedCryptoCurrencySymbols, "USD")
 
-  fmt.Println("ranked crypto currency symbols >>>>")
-  fmt.Println(rankedCryptoCurrencySymbols)
+  /* for testing */
+  rankedCryptoCurrencySymbols = rankedCryptoCurrencySymbols[0:1]
 
 
   /* open database connection */
@@ -145,11 +86,11 @@ func GetCryptoCurrencyRates(w http.ResponseWriter, r *http.Request) {
   query :=
     `SELECT ranked_cryptos.name, ranked_cryptos.symbol, ranked_cryptos.rank,
       ranked_cryptos.market_cap, ranked_cryptos.volume_24h,
-      crypto_rates.date, crypto_rates.closing_price, crypto_rates.min,
-
-      REPLACE(crypto_rates.currency, 'USD', 'BTC')
-
+      logos.img AS img,
+      crypto_rates.date, crypto_rates.closing_price, crypto_rates.min
     FROM ranked_crypto_currencies ranked_cryptos
+    LEFT JOIN crypto_currency_logos logos
+      ON logos.currency = ranked_cryptos.name
     LEFT JOIN crypto_rates
       ON crypto_rates.currency = ranked_cryptos.symbol`
 
@@ -162,16 +103,14 @@ func GetCryptoCurrencyRates(w http.ResponseWriter, r *http.Request) {
       query += " OR"
     }
 
-    query += " currency = ?"
+    query += " crypto_rates.currency = ?"
     queryValues = append(queryValues, symbol)
   }
 
-  query +=
-    ` ORDER BY date DESC
-    LIMIT 5000`
 
-  fmt.Println(query)
-  fmt.Println(queryValues)
+  query +=
+    ` AND crypto_rates.date > (NOW() - INTERVAL 16 DAY)
+    ORDER BY crypto_rates.date DESC`
 
   rows, err := db.Query(query, queryValues...)
   if err != nil {
@@ -190,10 +129,10 @@ func GetCryptoCurrencyRates(w http.ResponseWriter, r *http.Request) {
       &cryptoCurrency.Rank,
       &cryptoCurrency.Market_cap,
       &cryptoCurrency.Volume_24h,
+      &cryptoCurrency.Img,
       &cryptoRate.Date,
       &cryptoRate.Closing_price,
       &cryptoRate.Min,
-      &cryptoRate.Currency,
     )
     if err != nil {
       panic(err.Error())
@@ -209,7 +148,9 @@ func GetCryptoCurrencyRates(w http.ResponseWriter, r *http.Request) {
     cryptoCurrencies[cryptoCurrency.Name] = x
   }
 
-  cryptoCurrencies = limitCryptoCurrencyRates(cryptoCurrencies)
+  // cryptoCurrencies = limitCryptoCurrencyRates(cryptoCurrencies)
+
+  // fmt.Println(cryptoCurrencies)
 
   json.NewEncoder(w).Encode(cryptoCurrencies)
 }

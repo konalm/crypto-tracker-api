@@ -4,10 +4,14 @@ import (
   "log"
   "net/http"
   "os"
+  // "fmt"
   "github.com/joho/godotenv"
   "github.com/gorilla/handlers"
   "crypto-tracker-api/router"
   "crypto-tracker-api/cronJobs"
+  // "crypto-tracker-api/cryptoRatesController"
+  // "crypto-tracker-api/abstractRatesByTimePeriod"
+  "crypto-tracker-api/rsi"
 )
 
 
@@ -16,6 +20,10 @@ func main() {
   if err != nil {
     log.Fatal("Error loading .env file")
   }
+
+  rsi.HandleRsi()
+  // return
+
 
   appRouter := router.Index()
 
