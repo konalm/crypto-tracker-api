@@ -4,6 +4,7 @@ import (
   "github.com/gorilla/mux"
   "crypto-tracker-api/bitcoinRates"
   "crypto-tracker-api/cryptoRatesController"
+  "crypto-tracker-api/rankedCryptoCurrency"
   "net/http"
   "flag"
 )
@@ -14,6 +15,7 @@ func Index() *mux.Router {
   router.HandleFunc("/bitcoin-rates", bitcoinRates.GetBitcoinRates).Methods("GET")
   router.HandleFunc("/crypto-currencies", cryptoRatesController.GetCryptoCurrencies).Methods("GET")
   router.HandleFunc("/crypto-rates", cryptoRatesController.GetCryptoCurrencyRates).Methods("GET")
+  router.HandleFunc("/crypto-data", rankedCryptoCurrency.GetCryptoCurrencyData).Methods("GET")
 
   var dir string
   flag.StringVar(&dir, "dir", ".", "assets")

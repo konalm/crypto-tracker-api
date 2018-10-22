@@ -11,7 +11,7 @@ import (
   "crypto-tracker-api/cronJobs"
   // "crypto-tracker-api/cryptoRatesController"
   // "crypto-tracker-api/abstractRatesByTimePeriod"
-  "crypto-tracker-api/rsi"
+  // "crypto-tracker-api/rsi"
 )
 
 
@@ -21,7 +21,7 @@ func main() {
     log.Fatal("Error loading .env file")
   }
 
-  rsi.HandleRsi()
+  // rsi.HandleRsi()
   // return
 
 

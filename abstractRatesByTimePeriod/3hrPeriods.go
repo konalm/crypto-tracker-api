@@ -24,7 +24,7 @@ func ThreeHourPeriods(rates []structs.CryptoRate) []structs.CryptoRate {
 
     hour := t.Hour()
 
-    if ( hour == 0 ||
+    if (hour == 0 ||
         hour == 3 ||
         hour == 6 ||
         hour == 9 ||

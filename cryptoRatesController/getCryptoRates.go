@@ -73,8 +73,8 @@ func GetCryptoCurrencies(w http.ResponseWriter, r * http.Request) {
 func GetCryptoCurrencyRates(w http.ResponseWriter, r *http.Request) {
   rankedCryptoCurrencySymbols := rankedCryptoCurrency.GetSymbols()
 
-  /* for testing */
-  rankedCryptoCurrencySymbols = rankedCryptoCurrencySymbols[0:1]
+  // /* for testing */
+  // rankedCryptoCurrencySymbols = rankedCryptoCurrencySymbols[0:1]
 
 
   /* open database connection */
@@ -147,10 +147,6 @@ func GetCryptoCurrencyRates(w http.ResponseWriter, r *http.Request) {
     x.Rates = append(x.Rates, cryptoRate)
     cryptoCurrencies[cryptoCurrency.Name] = x
   }
-
-  // cryptoCurrencies = limitCryptoCurrencyRates(cryptoCurrencies)
-
-  // fmt.Println(cryptoCurrencies)
 
   json.NewEncoder(w).Encode(cryptoCurrencies)
 }

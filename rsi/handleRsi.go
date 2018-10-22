@@ -8,6 +8,7 @@ import (
   "crypto-tracker-api/abstractRatesByTimePeriod"
   "crypto-tracker-api/rankedCryptoCurrency"
   "encoding/json"
+  // "reflect"
 )
 
 type Rsi struct {
@@ -49,15 +50,34 @@ func handleCryptoRsi(cryptoCurrency string) {
   oneDayRsi := CalculateRsi(ratesIn24HrPeriod)
 
   var rsiData = []Rsi {
-    Rsi {Time_period: "15min", Rsi: fifteenMinRsi,},
-    Rsi {Time_period: "1hr", Rsi: oneHrRsi,},
-    Rsi {Time_period: "3hr", Rsi: threeHrRsi,},
-    Rsi {Time_period: "24hr", Rsi: oneDayRsi,},
+    Rsi {Time_period: "15min", Rsi: fifteenMinRsi},
+    Rsi {Time_period: "1hr", Rsi: oneHrRsi},
+    Rsi {Time_period: "3hr", Rsi: threeHrRsi},
+    Rsi {Time_period: "24hr", Rsi: oneDayRsi},
   }
 
   rsiJson, err := json.Marshal(rsiData)
   if err != nil {
-    panic(err.Error())
+    fmt.Println("ERROR JSON MARSHAL !!!!!!")
+    fmt.Println(rsiData)
+
+    fmt.Println("currency >>>")
+    fmt.Println(cryptoCurrency)
+
+    fmt.Println("rates >>>")
+    fmt.Println(rates)
+
+    fmt.Println("15 min rsi >>")
+    fmt.Println(fifteenMinRsi)
+
+    fmt.Println("1hr rsi >>")
+    fmt.Println(oneHrRsi)
+
+    fmt.Println("3hr rsi >>")
+    fmt.Println(threeHrRsi)
+
+    fmt.Println("24hr rsi >>")
+    fmt.Println(oneDayRsi)
   }
 
   updateCryptoRsi(cryptoCurrency, rsiJson)
@@ -68,11 +88,8 @@ func handleCryptoRsi(cryptoCurrency string) {
  *
  */
 func updateCryptoRsi(cryptoCurrency string, rsiJson []byte) {
-  fmt.Println("update crypo rsi")
+  rsiString := string(rsiJson)
 
-  if !rsiJson {
-    return
-  }
 
   /* open database connection */
   db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/stelita_dev")
@@ -84,11 +101,13 @@ func updateCryptoRsi(cryptoCurrency string, rsiJson []byte) {
 
   stmt, err := db.Prepare(query)
   if err != nil {
+    fmt.Print("PREPARE ERROR !!")
     panic(err.Error())
   }
 
-  _, err = stmt.Exec(rsiJson, cryptoCurrency)
+  _, err = stmt.Exec(rsiString, cryptoCurrency)
   if err != nil {
+    fmt.Println("EXEC ERROR !!")
     panic(err.Error())
   }
 

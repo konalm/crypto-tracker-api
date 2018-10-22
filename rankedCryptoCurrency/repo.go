@@ -1,6 +1,8 @@
 package rankedCryptoCurrency
 
 import (
+  "net/http"
+  "encoding/json"
   "database/sql"
   _ "github.com/go-sql-driver/mysql"
   "crypto-tracker-api/structs"
@@ -99,4 +101,54 @@ func GetSymbols() []string {
   }
 
   return symbols
+}
+
+
+/**
+ *
+ */
+func GetCryptoCurrencyData(w http.ResponseWriter, r *http.Request) {
+  /* open database connection */
+  db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/stelita_dev")
+  if err != nil {
+    panic(err.Error())
+  }
+
+  query :=
+    `SELECT crypto.name, crypto.symbol, crypto.rank, crypto.market_cap,
+      crypto.volume_24h, crypto.rsi,
+      logo.img
+    FROM ranked_crypto_currencies crypto
+    LEFT JOIN crypto_currency_logos logo
+      ON logo.currency = crypto.name
+    ORDER BY rank`
+
+
+  var cryptoCurrencyData []structs.CryptoCurrencyData
+
+  rows, err := db.Query(query)
+  if err != nil {
+    panic(err.Error())
+  }
+
+  for rows.Next() {
+    var crypto structs.CryptoCurrencyData
+    var rsi []byte
+
+    err := rows.Scan(
+      &crypto.Name, &crypto.Symbol, &crypto.Rank, &crypto.Market_cap,
+      &crypto.Volume_24h, &rsi, &crypto.Img,
+    )
+    if err != nil {
+      panic(err.Error())
+    }
+
+    if err := json.Unmarshal(rsi, &crypto.RsiData); err != nil {
+      panic(err.Error())
+    }
+
+    cryptoCurrencyData = append(cryptoCurrencyData, crypto)
+  }
+
+  json.NewEncoder(w).Encode(cryptoCurrencyData)
 }

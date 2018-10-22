@@ -1,12 +1,9 @@
 package rsi
 
 import (
-  // "fmt"
   "crypto-tracker-api/structs"
+  "math"
 )
-
-
-/* TODO (mysql query should handle this) Sort by date */
 
 
 var DummyCryptoRates = []structs.CryptoRate {
@@ -80,6 +77,10 @@ func CalculateRsi(cryptoRates []structs.CryptoRate) float64 {
   avgLoss := calcAverageLoss(cryptoRates)
   rsf := calcRsf(avgGain, avgLoss)
   rsi := calcRsi(rsf)
+
+  if math.IsNaN(rsi) {
+    return 0.00
+  }
 
   return rsi
 }
