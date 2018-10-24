@@ -36,5 +36,5 @@ func ThreeHourPeriods(rates []structs.CryptoRate) []structs.CryptoRate {
     }
   }
 
-  return Latest15Rates(ratesIn3HrPeriod)
+  return ratesIn3HrPeriod
 }

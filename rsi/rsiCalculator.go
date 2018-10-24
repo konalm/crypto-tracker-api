@@ -1,8 +1,9 @@
 package rsi
 
 import (
-  "crypto-tracker-api/structs"
   "math"
+  "crypto-tracker-api/structs"
+  "crypto-tracker-api/abstractRatesByTimePeriod"
 )
 
 
@@ -70,8 +71,15 @@ var DummyCryptoRates = []structs.CryptoRate {
 }
 
 
-func CalculateRsi(cryptoRates []structs.CryptoRate) float64 {
-  // var cryptoRates = DummyCryptoRates
+/**
+ *
+ */
+func CalculateRsi(_cryptoRates []structs.CryptoRate) float64 {
+  if len(_cryptoRates) < 15 {
+    return 0.00
+  }
+
+  var cryptoRates = abstractRatesByTimePeriod.LimitRates(_cryptoRates, 15)
 
   avgGain := calcAverageGain(cryptoRates)
   avgLoss := calcAverageLoss(cryptoRates)

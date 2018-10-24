@@ -6,6 +6,10 @@ import (
   "crypto-tracker-api/structs"
 )
 
+
+/**
+ *
+ */
 func CalculateRateChange(cryptoRates []structs.CryptoRate) float64 {
   cryptoRatesLength := len(cryptoRates)
 

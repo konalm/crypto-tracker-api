@@ -4,10 +4,10 @@ import (
   "database/sql"
   _ "github.com/go-sql-driver/mysql"
   "fmt"
+  "encoding/json"
   "crypto-tracker-api/cryptoRatesController"
   "crypto-tracker-api/abstractRatesByTimePeriod"
   "crypto-tracker-api/rankedCryptoCurrency"
-  "encoding/json"
   // "reflect"
 )
 
@@ -22,7 +22,6 @@ func HandleRsi() {
   fmt.Println("handle RSI")
 
   cryptoCurrencies := rankedCryptoCurrency.GetSymbols()
-
   // cryptoCurrencies = cryptoCurrencies[0:3]
 
   for _, cryptoCurrency := range cryptoCurrencies {
@@ -43,6 +42,17 @@ func handleCryptoTrendStats(cryptoCurrency string) {
   ratesIn15MinPeriod := abstractRatesByTimePeriod.FifteenMinPeriods(rates)
   fifteenMinRsi := CalculateRsi(ratesIn15MinPeriod)
   fifteenMinRateChange := CalculateRateChange(ratesIn15MinPeriod)
+
+  fifteenMin10Ma := CalculateMovingAverage(ratesIn15MinPeriod, 10)
+  fifteenMin25Ma := CalculateMovingAverage(ratesIn15MinPeriod, 25)
+  fifteenMin50Ma := CalculateMovingAverage(ratesIn15MinPeriod, 50)
+  fifteenMin100Ma := CalculateMovingAverage(ratesIn15MinPeriod, 100)
+
+  fmt.Println("moving averages >>>>>>>>>")
+  fmt.Println(fifteenMin10Ma)
+  fmt.Println(fifteenMin25Ma)
+  fmt.Println(fifteenMin50Ma)
+  fmt.Println(fifteenMin100Ma)
 
   /* 1 hr period */
   ratesIn1HrPeriod := abstractRatesByTimePeriod.OneHourPeriods(rates)
