@@ -11,9 +11,10 @@ import (
   // "reflect"
 )
 
-type Rsi struct {
-  Rsi float64
+type TrendStat struct {
   Time_period string
+  Rsi float64
+  RateChange float64
 }
 
 
@@ -22,10 +23,12 @@ func HandleRsi() {
 
   cryptoCurrencies := rankedCryptoCurrency.GetSymbols()
 
-  for _, cryptoCurrency := range cryptoCurrencies {
-    fmt.Println("call handle rsi for >>> " + cryptoCurrency)
+  // cryptoCurrencies = cryptoCurrencies[0:3]
 
-    go handleCryptoRsi(cryptoCurrency)
+  for _, cryptoCurrency := range cryptoCurrencies {
+    fmt.Println("call handle trend stats for >>> " + cryptoCurrency)
+
+    go handleCryptoTrendStats(cryptoCurrency)
   }
 }
 
@@ -33,63 +36,51 @@ func HandleRsi() {
 /**
  *
  */
-func handleCryptoRsi(cryptoCurrency string) {
-  fmt.Println("handle crypto rsi >>> " + cryptoCurrency)
+func handleCryptoTrendStats(cryptoCurrency string) {
   rates := cryptoRatesController.GetCryptoCurrencyRatesForRsi(cryptoCurrency)
 
+  /* 15 min period */
   ratesIn15MinPeriod := abstractRatesByTimePeriod.FifteenMinPeriods(rates)
   fifteenMinRsi := CalculateRsi(ratesIn15MinPeriod)
+  fifteenMinRateChange := CalculateRateChange(ratesIn15MinPeriod)
 
+  /* 1 hr period */
   ratesIn1HrPeriod := abstractRatesByTimePeriod.OneHourPeriods(rates)
   oneHrRsi := CalculateRsi(ratesIn1HrPeriod)
+  oneHrRateChange := CalculateRateChange(ratesIn1HrPeriod)
 
+  /* 3hr period */
   ratesIn3HrPeriod := abstractRatesByTimePeriod.ThreeHourPeriods(rates)
   threeHrRsi := CalculateRsi(ratesIn3HrPeriod)
+  threeHrRateChange := CalculateRateChange(ratesIn3HrPeriod)
 
+  /* 24hr period */
   ratesIn24HrPeriod := abstractRatesByTimePeriod.TwentyFourPeriods(rates)
   oneDayRsi := CalculateRsi(ratesIn24HrPeriod)
+  oneDayRateChange := CalculateRateChange(ratesIn24HrPeriod)
 
-  var rsiData = []Rsi {
-    Rsi {Time_period: "15min", Rsi: fifteenMinRsi},
-    Rsi {Time_period: "1hr", Rsi: oneHrRsi},
-    Rsi {Time_period: "3hr", Rsi: threeHrRsi},
-    Rsi {Time_period: "24hr", Rsi: oneDayRsi},
+  var trendStats = []TrendStat {
+    TrendStat {Time_period: "15min", Rsi: fifteenMinRsi, RateChange: fifteenMinRateChange},
+    TrendStat {Time_period: "1hr", Rsi: oneHrRsi, RateChange: oneHrRateChange},
+    TrendStat {Time_period: "3hr", Rsi: threeHrRsi, RateChange: threeHrRateChange},
+    TrendStat {Time_period: "24hr", Rsi: oneDayRsi, RateChange: oneDayRateChange},
   }
 
-  rsiJson, err := json.Marshal(rsiData)
+  trendStatsJson, err := json.Marshal(trendStats)
   if err != nil {
     fmt.Println("ERROR JSON MARSHAL !!!!!!")
-    fmt.Println(rsiData)
-
-    fmt.Println("currency >>>")
-    fmt.Println(cryptoCurrency)
-
-    fmt.Println("rates >>>")
-    fmt.Println(rates)
-
-    fmt.Println("15 min rsi >>")
-    fmt.Println(fifteenMinRsi)
-
-    fmt.Println("1hr rsi >>")
-    fmt.Println(oneHrRsi)
-
-    fmt.Println("3hr rsi >>")
-    fmt.Println(threeHrRsi)
-
-    fmt.Println("24hr rsi >>")
-    fmt.Println(oneDayRsi)
+    fmt.Println(trendStats)
   }
 
-  updateCryptoRsi(cryptoCurrency, rsiJson)
+  updateCryptoTrendStats(cryptoCurrency, trendStatsJson)
 }
 
 
 /**
  *
  */
-func updateCryptoRsi(cryptoCurrency string, rsiJson []byte) {
-  rsiString := string(rsiJson)
-
+func updateCryptoTrendStats(cryptoCurrency string, trendStatsJson []byte) {
+  trendStatsString := string(trendStatsJson)
 
   /* open database connection */
   db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/stelita_dev")
@@ -97,7 +88,7 @@ func updateCryptoRsi(cryptoCurrency string, rsiJson []byte) {
     panic(err.Error())
   }
 
-  query := "UPDATE ranked_crypto_currencies SET rsi = ? WHERE symbol = ?"
+  query := "UPDATE ranked_crypto_currencies SET trend_statistics = ? WHERE symbol = ?"
 
   stmt, err := db.Prepare(query)
   if err != nil {
@@ -105,7 +96,7 @@ func updateCryptoRsi(cryptoCurrency string, rsiJson []byte) {
     panic(err.Error())
   }
 
-  _, err = stmt.Exec(rsiString, cryptoCurrency)
+  _, err = stmt.Exec(trendStatsString, cryptoCurrency)
   if err != nil {
     fmt.Println("EXEC ERROR !!")
     panic(err.Error())

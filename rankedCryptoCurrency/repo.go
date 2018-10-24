@@ -116,7 +116,7 @@ func GetCryptoCurrencyData(w http.ResponseWriter, r *http.Request) {
 
   query :=
     `SELECT crypto.name, crypto.symbol, crypto.rank, crypto.market_cap,
-      crypto.volume_24h, crypto.rsi,
+      crypto.volume_24h, crypto.trend_statistics,
       logo.img
     FROM ranked_crypto_currencies crypto
     LEFT JOIN crypto_currency_logos logo
@@ -133,17 +133,17 @@ func GetCryptoCurrencyData(w http.ResponseWriter, r *http.Request) {
 
   for rows.Next() {
     var crypto structs.CryptoCurrencyData
-    var rsi []byte
+    var trendStats []byte
 
     err := rows.Scan(
       &crypto.Name, &crypto.Symbol, &crypto.Rank, &crypto.Market_cap,
-      &crypto.Volume_24h, &rsi, &crypto.Img,
+      &crypto.Volume_24h, &trendStats, &crypto.Img,
     )
     if err != nil {
       panic(err.Error())
     }
 
-    if err := json.Unmarshal(rsi, &crypto.RsiData); err != nil {
+    if err := json.Unmarshal(trendStats, &crypto.TrendStats); err != nil {
       panic(err.Error())
     }
 

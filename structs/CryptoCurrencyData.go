@@ -8,10 +8,11 @@ type CryptoCurrencyData struct {
   Market_cap float64
   Volume_24h float64
   Img *string
-  RsiData []Rsi
+  TrendStats []TrendStat
 }
 
-type Rsi struct {
-  Rsi float64
+type TrendStat struct {
   Time_period string
+  Rsi float64
+  RateChange float64
 }
