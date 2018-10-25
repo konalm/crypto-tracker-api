@@ -43,8 +43,8 @@ func InsertCryptoRates(rates []structs.BitcoinRate) {
     panic(err.Error())
   }
 
-  defer stmt.Close()
-  defer db.Close()
+  stmt.Close()
+  db.Close()
 }
 
 

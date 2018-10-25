@@ -1,7 +1,7 @@
 package rsi
 
 import (
-  "fmt"
+  // "fmt"
   "crypto-tracker-api/structs"
   "crypto-tracker-api/abstractRatesByTimePeriod"
 )
@@ -11,8 +11,6 @@ import (
  *
  */
 func CalculateMovingAverage(_cryptoRates []structs.CryptoRate, length int) float64 {
-  fmt.Println("calculate moving average")
-
   if len(_cryptoRates) < length {
     return 0.00
   }
@@ -21,8 +19,6 @@ func CalculateMovingAverage(_cryptoRates []structs.CryptoRate, length int) float
   rateTotal := 0.00
 
   for _, cryptoRate := range cryptoRates {
-    fmt.Println("calc moving average -> in loop")
-
     rateTotal += cryptoRate.ClosingPrice
   }
 
