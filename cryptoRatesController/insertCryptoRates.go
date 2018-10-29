@@ -1,7 +1,7 @@
 package cryptoRatesController
 
 import (
-	"crypto-tracker-api/structs"
+	"stelita-api/structs"
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
@@ -19,6 +19,7 @@ func InsertCryptoRates(rates []structs.BitcoinRate) {
   if err != nil {
     panic(err.Error())
   }
+	defer db.Close()
 
   query := `INSERT INTO crypto_rates (currency, date, closing_price, min)`
   var queryValues = []interface{}{}
@@ -37,14 +38,12 @@ func InsertCryptoRates(rates []structs.BitcoinRate) {
 
   query = removeLastComma(query)
   stmt, _ := db.Prepare(query)
+	defer stmt.Close()
 
   _, err = stmt.Exec(queryValues...)
   if err != nil {
     panic(err.Error())
   }
-
-  stmt.Close()
-  db.Close()
 }
 
 

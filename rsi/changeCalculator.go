@@ -1,9 +1,7 @@
 package rsi
 
 import (
-  // "math"
-  // "fmt"
-  "crypto-tracker-api/structs"
+  "stelita-api/structs"
 )
 
 

@@ -2,9 +2,9 @@ package router
 
 import (
   "github.com/gorilla/mux"
-  "crypto-tracker-api/bitcoinRates"
-  "crypto-tracker-api/cryptoRatesController"
-  "crypto-tracker-api/rankedCryptoCurrency"
+  "stelita-api/bitcoinRates"
+  "stelita-api/cryptoRatesController"
+  "stelita-api/rankedCryptoCurrency"
   "net/http"
   "flag"
 )

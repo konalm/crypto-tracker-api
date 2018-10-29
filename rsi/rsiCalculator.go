@@ -2,8 +2,8 @@ package rsi
 
 import (
   "math"
-  "crypto-tracker-api/structs"
-  "crypto-tracker-api/abstractRatesByTimePeriod"
+  "stelita-api/structs"
+  "stelita-api/abstractRatesByTimePeriod"
 )
 
 

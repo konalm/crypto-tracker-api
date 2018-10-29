@@ -1,7 +1,7 @@
 package abstractRatesByTimePeriod
 
 import (
-  "crypto-tracker-api/structs"
+  "stelita-api/structs"
 )
 
 /**

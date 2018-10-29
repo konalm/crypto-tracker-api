@@ -5,7 +5,7 @@ import (
   "encoding/json"
   "fmt"
   "io/ioutil"
-  "crypto-tracker-api/structs"
+  "stelita-api/structs"
 )
 
 

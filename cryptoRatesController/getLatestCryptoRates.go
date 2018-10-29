@@ -4,7 +4,7 @@ import (
   "database/sql"
   _ "github.com/go-sql-driver/mysql"
   // "fmt"
-  "crypto-tracker-api/structs"
+  "stelita-api/structs"
 )
 
 
@@ -14,6 +14,7 @@ func GetCryptoCurrencyRatesForRsi(currency string) []structs.CryptoRate {
   if err != nil {
     panic(err.Error())
   }
+  defer db.Close()
 
   query :=
     `SELECT date, closing_price, min
@@ -25,6 +26,7 @@ func GetCryptoCurrencyRatesForRsi(currency string) []structs.CryptoRate {
   if err != nil {
     panic(err.Error())
   }
+  defer rows.Close()
 
   var cryptoRates []structs.CryptoRate
 

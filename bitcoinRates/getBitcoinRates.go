@@ -20,19 +20,30 @@ const closingPriceQuery = `
 	DESC LIMIT 15
 `
 
+/**
+ *
+ */
 func GetBitcoinRates(w http.ResponseWriter, r *http.Request) {
 	db := getDBConnection(
 		"mysql",
 		"root:root@tcp(127.0.0.1:3306)/stelita_dev",
 	)
+	defer db.Close()
+
 	rows, err := db.Query(closingPriceQuery)
 	if err != nil {
 		panic(err.Error())
 	}
+	defer rows.Close()
+
 	bitcoinRates := processRates(rows)
 	json.NewEncoder(w).Encode(bitcoinRates)
 }
 
+
+/**
+ *
+ */
 func getDBConnection(driverName string, dataSourceName string) *sql.DB {
 	db, err := sql.Open(driverName, dataSourceName)
 	if err != nil {

@@ -5,8 +5,8 @@ import (
   "encoding/json"
   "database/sql"
   _ "github.com/go-sql-driver/mysql"
-  "crypto-tracker-api/structs"
-  "crypto-tracker-api/utils"
+  "stelita-api/structs"
+  "stelita-api/utils"
 )
 
 /**

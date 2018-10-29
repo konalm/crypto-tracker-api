@@ -1,7 +1,7 @@
 package fetchCryptoRates
 
 import (
-	"crypto-tracker-api/structs"
+	"stelita-api/structs"
 	. "encoding/json"
 	. "fmt"
 	. "io/ioutil"

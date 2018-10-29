@@ -5,7 +5,7 @@ import (
   "fmt"
   "io/ioutil"
   "encoding/json"
-  "crypto-tracker-api/structs"
+  "stelita-api/structs"
 )
 
 type CoinMarketGapApiResponse struct {

@@ -5,10 +5,12 @@ import (
   _ "github.com/go-sql-driver/mysql"
   "fmt"
   "encoding/json"
-  "crypto-tracker-api/cryptoRatesController"
-  "crypto-tracker-api/abstractRatesByTimePeriod"
-  "crypto-tracker-api/rankedCryptoCurrency"
-  "crypto-tracker-api/structs"
+  // "sync"
+  "stelita-api/cryptoRatesController"
+  "stelita-api/abstractRatesByTimePeriod"
+  "stelita-api/rankedCryptoCurrency"
+  "stelita-api/structs"
+  "stelita-api/db"
   // "reflect"
 )
 
@@ -20,18 +22,25 @@ type TrendStat struct {
 }
 
 
-
-
+/**
+ *
+ */
 func HandleRsi() {
   fmt.Println("handle RSI")
 
   cryptoCurrencies := rankedCryptoCurrency.GetSymbols()
-  // cryptoCurrencies = cryptoCurrencies[0:3]
+
+  maxRoutines := 10
+  handleCryptoTrendChannel := make(chan struct{}, maxRoutines)
 
   for _, cryptoCurrency := range cryptoCurrencies {
     fmt.Println("call handle trend stats for >>> " + cryptoCurrency)
 
-    go handleCryptoTrendStats(cryptoCurrency)
+    handleCryptoTrendChannel <- struct{}{} // block if limit reached
+    go func() {
+      handleCryptoTrendStats(cryptoCurrency)
+      <-handleCryptoTrendChannel
+    }()
   }
 }
 
@@ -150,18 +159,20 @@ func updateCryptoTrendStats(cryptoCurrency string, trendStatsJson []byte) {
   trendStatsString := string(trendStatsJson)
 
   /* open database connection */
-  db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/stelita_dev")
+  myDb, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/stelita_dev")
   if err != nil {
     panic(err.Error())
   }
+  defer myDb.Close()
 
   query := "UPDATE ranked_crypto_currencies SET trend_statistics = ? WHERE symbol = ?"
 
-  stmt, err := db.Prepare(query)
+  stmt, err := myDb.Prepare(query)
   if err != nil {
     fmt.Print("PREPARE ERROR !!")
     panic(err.Error())
   }
+  defer stmt.Close()
 
   _, err = stmt.Exec(trendStatsString, cryptoCurrency)
   if err != nil {
@@ -169,6 +180,7 @@ func updateCryptoTrendStats(cryptoCurrency string, trendStatsJson []byte) {
     panic(err.Error())
   }
 
-  stmt.Close()
-  db.Close()
+  fmt.Println("handled insert >>>> " + cryptoCurrency)
+  var processList = db.GetProcessList()
+  fmt.Println(len(processList));
 }

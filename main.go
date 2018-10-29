@@ -7,11 +7,14 @@ import (
   // "fmt"
   "github.com/joho/godotenv"
   "github.com/gorilla/handlers"
-  "crypto-tracker-api/router"
-  "crypto-tracker-api/cronJobs"
-  // "crypto-tracker-api/cryptoRatesController"
-  // "crypto-tracker-api/abstractRatesByTimePeriod"
-  // "crypto-tracker-api/rsi"
+  "stelita-api/router"
+  "stelita-api/cronJobs"
+  // "database/sql"
+  // _ "github.com/go-sql-driver/mysql"
+  // "stelita-api/structs"
+  // "stelita-api/cryptoRatesController"
+  // "stelita-api/abstractRatesByTimePeriod"
+  "stelita-api/rsi"
 )
 
 
@@ -21,9 +24,8 @@ func main() {
     log.Fatal("Error loading .env file")
   }
 
-  // rsi.HandleRsi()
+  rsi.HandleRsi()
   // return
-
 
   appRouter := router.Index()
 

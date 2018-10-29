@@ -2,7 +2,7 @@ package cronJobs
 
 import (
   "github.com/robfig/cron"
-  "crypto-tracker-api/rankedCryptoCurrency"
+  "stelita-api/rankedCryptoCurrency"
 )
 
 

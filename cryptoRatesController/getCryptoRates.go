@@ -5,7 +5,7 @@ import (
   _ "github.com/go-sql-driver/mysql"
   "net/http"
   "encoding/json"
-  "crypto-tracker-api/rankedCryptoCurrency"
+  "stelita-api/rankedCryptoCurrency"
   // "fmt"
   "sort"
 )
@@ -42,6 +42,7 @@ func GetCryptoCurrencies(w http.ResponseWriter, r * http.Request) {
   if err != nil {
     panic(err.Error())
   }
+  defer db.Close()
 
   query := `SELECT DISTINCT currency FROM crypto_rates`
 
@@ -49,6 +50,7 @@ func GetCryptoCurrencies(w http.ResponseWriter, r * http.Request) {
   if err != nil {
     panic(err.Error())
   }
+  defer rows.Close()
 
   var cryptoCurrencies []CryptoCurrency
 

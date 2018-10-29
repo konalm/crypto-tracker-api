@@ -6,7 +6,7 @@ import (
   "database/sql"
   _ "github.com/go-sql-driver/mysql"
   "time"
-  "crypto-tracker-api/structs"
+  "stelita-api/structs"
 )
 
 

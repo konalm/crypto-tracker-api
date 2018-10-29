@@ -3,7 +3,7 @@ package abstractRatesByTimePeriod
 import (
   // "fmt"
   // "reflect"
-  "crypto-tracker-api/structs"
+  "stelita-api/structs"
   "time"
 )
 
@@ -12,8 +12,6 @@ import (
  *
  */
 func ThreeHourPeriods(rates []structs.CryptoRate) []structs.CryptoRate {
-  // fmt.Println("three hour periods")
-
   var ratesIn3HrPeriod []structs.CryptoRate
 
   for _, rate := range rates {
