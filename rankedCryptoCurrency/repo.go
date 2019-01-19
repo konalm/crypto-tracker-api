@@ -1,12 +1,13 @@
 package rankedCryptoCurrency
 
 import (
+  "fmt"
   "net/http"
   "encoding/json"
-  "database/sql"
   _ "github.com/go-sql-driver/mysql"
   "stelita-api/structs"
   "stelita-api/utils"
+  "stelita-api/db"
 )
 
 /**
@@ -15,11 +16,8 @@ import (
 func InsertRankedCryptoCurrencies(
   cryptoCurrencies map[string] structs.RankedCryptoCurrency,
 ) {
-  /* open database connection */
-  db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/stelita_dev")
-  if err != nil {
-    panic(err.Error())
-  }
+  dbConn := db.Conn()
+  defer dbConn.Close()
 
   query :=
     `INSERT INTO ranked_crypto_currencies
@@ -42,15 +40,14 @@ func InsertRankedCryptoCurrencies(
   }
 
   query = utils.RemoveLastComma(query)
-  stmt, _ := db.Prepare(query)
+  stmt, _ := dbConn.Prepare(query)
 
-  _, err = stmt.Exec(queryValues...)
+  _, err := stmt.Exec(queryValues...)
   if err != nil {
     panic("ERROR executing query" + err.Error())
   }
 
   defer stmt.Close()
-  defer db.Close()
 }
 
 
@@ -58,15 +55,12 @@ func InsertRankedCryptoCurrencies(
  *
  */
 func DestroyCurrentRankedCryptoCurrencies() {
-  /* open database connection */
-  db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/stelita_dev")
-  if err != nil {
-    panic(err.Error())
-  }
+  db := db.Conn()
+  defer db.Close()
 
   destroy, err := db.Query("DELETE FROM ranked_crypto_currencies")
   if err != nil {
-    panic("ERROR destroying current ranked crpyot currencies")
+    panic("ERROR destroying current ranked crypto currencies")
   }
 
   defer destroy.Close()
@@ -76,14 +70,14 @@ func DestroyCurrentRankedCryptoCurrencies() {
  *
  */
 func GetSymbols() []string {
-  /* open database connection */
-  db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/stelita_dev")
+  fmt.Println("Get Symbols")
+
+  dbConn := db.Conn()
+  defer dbConn.Close()
+
+  rows, err := dbConn.Query("SELECT symbol FROM ranked_crypto_currencies")
   if err != nil {
     panic(err.Error())
-  }
-
-  rows, err := db.Query("SELECT symbol FROM ranked_crypto_currencies")
-  if err != nil {
     panic("ERROR getting symbols from ranked crypto currencies")
   }
 
@@ -100,6 +94,8 @@ func GetSymbols() []string {
     symbols = append(symbols, symbol)
   }
 
+  fmt.Println("got all symbols from ranked crypto currencies <<< Complete")
+
   return symbols
 }
 
@@ -108,21 +104,19 @@ func GetSymbols() []string {
  *
  */
 func GetCryptoCurrencyData(w http.ResponseWriter, r *http.Request) {
-  /* open database connection */
-  db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/stelita_dev")
-  if err != nil {
-    panic(err.Error())
-  }
+  fmt.Println("Get crypto current data >>>")
+
+  db := db.Conn()
+  defer db.Close()
 
   query :=
-    `SELECT crypto.name, crypto.symbol, crypto.rank, crypto.market_cap,
+    `SELECT crypto.id, crypto.name, crypto.symbol, crypto.rank, crypto.market_cap,
       crypto.volume_24h, crypto.trend_statistics,
       logo.img
     FROM ranked_crypto_currencies crypto
     LEFT JOIN crypto_currency_logos logo
       ON logo.currency = crypto.name
     ORDER BY rank`
-
 
   var cryptoCurrencyData []structs.CryptoCurrencyData
 
@@ -136,15 +130,17 @@ func GetCryptoCurrencyData(w http.ResponseWriter, r *http.Request) {
     var trendStats []byte
 
     err := rows.Scan(
-      &crypto.Name, &crypto.Symbol, &crypto.Rank, &crypto.Market_cap,
+      &crypto.Id, &crypto.Name, &crypto.Symbol, &crypto.Rank, &crypto.Market_cap,
       &crypto.Volume_24h, &trendStats, &crypto.Img,
     )
     if err != nil {
       panic(err.Error())
     }
 
-    if err := json.Unmarshal(trendStats, &crypto.TrendStats); err != nil {
-      panic(err.Error())
+    if string(trendStats) != "" {
+      if err := json.Unmarshal(trendStats, &crypto.TrendStats); err != nil {
+        panic(err.Error())
+      }
     }
 
     cryptoCurrencyData = append(cryptoCurrencyData, crypto)

@@ -23,5 +23,6 @@ func Index() *mux.Router {
 
   /* serve static files */
   router.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))
+
   return router
 }

@@ -1,13 +1,12 @@
 package cryptoRatesController
 
 import (
-  "database/sql"
+  "sort"
   _ "github.com/go-sql-driver/mysql"
   "net/http"
   "encoding/json"
   "stelita-api/rankedCryptoCurrency"
-  // "fmt"
-  "sort"
+  "stelita-api/db"
 )
 
 
@@ -37,11 +36,7 @@ func GetCryptoCurrencies(w http.ResponseWriter, r * http.Request) {
     Currency string
   }
 
-  /* open database connection */
-  db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/stelita_dev")
-  if err != nil {
-    panic(err.Error())
-  }
+  db := db.Conn()
   defer db.Close()
 
   query := `SELECT DISTINCT currency FROM crypto_rates`
@@ -75,15 +70,12 @@ func GetCryptoCurrencies(w http.ResponseWriter, r * http.Request) {
 func GetCryptoCurrencyRates(w http.ResponseWriter, r *http.Request) {
   rankedCryptoCurrencySymbols := rankedCryptoCurrency.GetSymbols()
 
-  // /* for testing */
+  /* for testing */
   // rankedCryptoCurrencySymbols = rankedCryptoCurrencySymbols[0:1]
 
-
   /* open database connection */
-  db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/stelita_dev")
-  if err != nil {
-    panic(err.Error())
-  }
+  db := db.Conn()
+  defer db.Close()
 
   query :=
     `SELECT ranked_cryptos.name, ranked_cryptos.symbol, ranked_cryptos.rank,

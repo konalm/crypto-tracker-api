@@ -5,53 +5,43 @@ import (
 	"encoding/json"
 	"net/http"
 	"sort"
+	"stelita-api/db"
 )
 
 type BitcoinRate struct {
-	Date         string
-	ClosingPrice float64
+  Date         string
+  ClosingPrice float64
 }
 
 const closingPriceQuery = `
-	SELECT date, closing_price
-	FROM bitcoin_rates
-	WHERE min in (0, 15, 30, 45)
-	ORDER BY date
-	DESC LIMIT 15
+  SELECT date, closing_price
+  FROM bitcoin_rates
+  WHERE min in (0, 15, 30, 45)
+  ORDER BY date
+  DESC LIMIT 15
 `
 
 /**
  *
  */
 func GetBitcoinRates(w http.ResponseWriter, r *http.Request) {
-	db := getDBConnection(
-		"mysql",
-		"root:root@tcp(127.0.0.1:3306)/stelita_dev",
-	)
-	defer db.Close()
+  db := db.Conn()
+  defer db.Close()
 
-	rows, err := db.Query(closingPriceQuery)
-	if err != nil {
-		panic(err.Error())
-	}
-	defer rows.Close()
+  rows, err := db.Query(closingPriceQuery)
+  if err != nil {
+    panic(err.Error())
+  }
+  defer rows.Close()
 
-	bitcoinRates := processRates(rows)
-	json.NewEncoder(w).Encode(bitcoinRates)
+  bitcoinRates := processRates(rows)
+  json.NewEncoder(w).Encode(bitcoinRates)
 }
 
 
 /**
  *
  */
-func getDBConnection(driverName string, dataSourceName string) *sql.DB {
-	db, err := sql.Open(driverName, dataSourceName)
-	if err != nil {
-		panic(err.Error())
-	}
-	return db
-}
-
 func processRates(rows *sql.Rows) []BitcoinRate {
 	var bitcoinRates []BitcoinRate
 	for rows.Next() {

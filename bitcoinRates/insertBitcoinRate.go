@@ -3,10 +3,11 @@ package bitcoinRates
 import (
   "fmt"
   "strings"
-  "database/sql"
+  // "database/sql"
   _ "github.com/go-sql-driver/mysql"
   "time"
   "stelita-api/structs"
+  "stelita-api/db"
 )
 
 
@@ -26,11 +27,8 @@ func InsertBitcoinRate(rate structs.BitcoinRate) {
     fmt.Println(err.Error())
   }
 
-  /* open database connection */
-  db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/stelita_dev")
-  if err != nil {
-    panic(err.Error())
-  }
+  db := db.Conn()
+  defer db.Close()
 
   var query string =
     `INSERT INTO bitcoin_rates (currency, date, closing_price, min)

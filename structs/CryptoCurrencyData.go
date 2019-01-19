@@ -2,6 +2,7 @@ package structs
 
 
 type CryptoCurrencyData struct {
+  Id int
   Name string
   Symbol string
   Rank int

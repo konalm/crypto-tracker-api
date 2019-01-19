@@ -18,12 +18,8 @@ type ApiResponse struct {
  *
  */
 func FetchCryptoRates() []structs.BitcoinRate {
-  fmt.Println("Fetch crypto rates from coinapi")
-
   client := &http.Client{}
-
-  request, err :=
-    http.NewRequest("GET", "https://rest.coinapi.io/v1/exchangerate/BTC", nil)
+  request, err := http.NewRequest("GET", "https://rest.coinapi.io/v1/exchangerate/BTC", nil)
   request.Header.Set("X-CoinApi-Key", `E4C3D4AE-29D8-4A9F-BD36-EB367D836532`)
 
   resp, err := client.Do(request)

@@ -1,17 +1,13 @@
 package rsi
 
 import (
-  "database/sql"
-  _ "github.com/go-sql-driver/mysql"
   "fmt"
   "encoding/json"
-  // "sync"
   "stelita-api/cryptoRatesController"
   "stelita-api/abstractRatesByTimePeriod"
   "stelita-api/rankedCryptoCurrency"
   "stelita-api/structs"
   "stelita-api/db"
-  // "reflect"
 )
 
 type TrendStat struct {
@@ -26,16 +22,11 @@ type TrendStat struct {
  *
  */
 func HandleRsi() {
-  fmt.Println("handle RSI")
-
   cryptoCurrencies := rankedCryptoCurrency.GetSymbols()
-
   maxRoutines := 10
   handleCryptoTrendChannel := make(chan struct{}, maxRoutines)
 
   for _, cryptoCurrency := range cryptoCurrencies {
-    fmt.Println("call handle trend stats for >>> " + cryptoCurrency)
-
     handleCryptoTrendChannel <- struct{}{} // block if limit reached
     go func() {
       handleCryptoTrendStats(cryptoCurrency)
@@ -49,6 +40,8 @@ func HandleRsi() {
  *
  */
 func handleCryptoTrendStats(cryptoCurrency string) {
+  fmt.Println("handle crypto trend stats")
+
   rates := cryptoRatesController.GetCryptoCurrencyRatesForRsi(cryptoCurrency)
 
   /* 15 min period */
@@ -158,16 +151,12 @@ func handleCryptoTrendStats(cryptoCurrency string) {
 func updateCryptoTrendStats(cryptoCurrency string, trendStatsJson []byte) {
   trendStatsString := string(trendStatsJson)
 
-  /* open database connection */
-  myDb, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/stelita_dev")
-  if err != nil {
-    panic(err.Error())
-  }
-  defer myDb.Close()
+  dbConn := db.Conn()
+  defer dbConn.Close()
 
   query := "UPDATE ranked_crypto_currencies SET trend_statistics = ? WHERE symbol = ?"
 
-  stmt, err := myDb.Prepare(query)
+  stmt, err := dbConn.Prepare(query)
   if err != nil {
     fmt.Print("PREPARE ERROR !!")
     panic(err.Error())
@@ -181,6 +170,19 @@ func updateCryptoTrendStats(cryptoCurrency string, trendStatsJson []byte) {
   }
 
   fmt.Println("handled insert >>>> " + cryptoCurrency)
-  var processList = db.GetProcessList()
-  fmt.Println(len(processList));
+
+  processListQuery := "SHOW PROCESSLIST";
+  stmtProcessList, err := dbConn.Query(processListQuery)
+  if err != nil {
+    fmt.Println("stmt process list")
+  }
+  defer stmtProcessList.Close()
+
+  i := 0
+  for stmtProcessList.Next() {
+    i ++
+  }
+
+  fmt.Println("Process List -- update crypto trend stat ---  >>>>>>>")
+  fmt.Println(i)
 }

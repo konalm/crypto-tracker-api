@@ -1,20 +1,20 @@
 package cryptoRatesController
 
 import (
-  "database/sql"
+  // "database/sql"
   _ "github.com/go-sql-driver/mysql"
   // "fmt"
   "stelita-api/structs"
+  "stelita-api/db"
 )
 
 
+/**
+ *
+ */
 func GetCryptoCurrencyRatesForRsi(currency string) []structs.CryptoRate {
-  /* open database connection */
-  db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/stelita_dev")
-  if err != nil {
-    panic(err.Error())
-  }
-  defer db.Close()
+  dbConn := db.Conn()
+  defer dbConn.Close()
 
   query :=
     `SELECT date, closing_price, min
@@ -22,7 +22,7 @@ func GetCryptoCurrencyRatesForRsi(currency string) []structs.CryptoRate {
     WHERE currency = ?
       AND date > (NOW() - INTERVAL 16 DAY)`
 
-  rows, err := db.Query(query, currency)
+  rows, err := dbConn.Query(query, currency)
   if err != nil {
     panic(err.Error())
   }

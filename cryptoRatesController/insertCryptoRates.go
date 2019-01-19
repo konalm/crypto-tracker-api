@@ -1,12 +1,13 @@
 package cryptoRatesController
 
 import (
-	"stelita-api/structs"
-	"database/sql"
+	// "database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"strings"
 	"time"
+	"stelita-api/structs"
+	"stelita-api/db"
 )
 
 
@@ -14,12 +15,10 @@ import (
  *
  */
 func InsertCryptoRates(rates []structs.BitcoinRate) {
-  /* open database connection */
-  db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/stelita_dev")
-  if err != nil {
-    panic(err.Error())
-  }
-	defer db.Close()
+	fmt.Println("<<<  INSERT CRYPTO RATES >>>>")
+
+  dbConn := db.Conn()
+	defer dbConn.Close()
 
   query := `INSERT INTO crypto_rates (currency, date, closing_price, min)`
   var queryValues = []interface{}{}
@@ -28,29 +27,92 @@ func InsertCryptoRates(rates []structs.BitcoinRate) {
   minOfCronJob := timeOfCronJob.Minute()
 
   for i, rate := range rates {
-    query += buildRateModalQuery(rate, i)
+    query += buildRateModalQuery(i)
     formattedDate := formatDateForMysql(rate.Time)
 
-		if rate.Asset_id_quote == "USD" { rate.Asset_id_quote = "BTC" }
+    if rate.Asset_id_quote == "USD" { rate.Asset_id_quote = "BTC" }
 
     queryValues = append(queryValues, rate.Asset_id_quote, formattedDate, rate.Rate, minOfCronJob)
   }
 
   query = removeLastComma(query)
-  stmt, _ := db.Prepare(query)
+  stmt, _ := dbConn.Prepare(query)
 	defer stmt.Close()
 
-  _, err = stmt.Exec(queryValues...)
+  _, err := stmt.Exec(queryValues...)
   if err != nil {
     panic(err.Error())
   }
+
+	processListQuery := "SHOW PROCESSLIST";
+	stmtProcessList, err := dbConn.Query(processListQuery)
+	if err != nil {
+		fmt.Println("stmt process list")
+	}
+	defer stmtProcessList.Close()
+
+	i := 0
+	for stmtProcessList.Next() {
+		i ++
+	}
+
+	fmt.Println("Process List -- on insert -- >>>>>>>")
+	fmt.Println(i)
+}
+
+/**
+ *
+ */
+func InsertUSDCryptoRates(rates []structs.USDRate) {
+	fmt.Println("INSERT USD CRYPTO RATES")
+
+	dbConn := db.Conn()
+	defer dbConn.Close()
+
+	query := `INSERT crypto_usd_rates (current, date, closing_price, min)`
+	var queryValues = []interface{}{}
+
+	timeOfCronJob := time.Now()
+	minOfCronJob := timeOfCronJob.Minute()
+
+	for i, rate := range rates {
+		query += buildRateModalQuery(i)
+		formattedDate := formatDateForMysql(rate.Date_added)
+
+		queryValues =
+			append(queryValues, rate.Symbol, formattedDate, rate.Quotes[0].Price, minOfCronJob)
+
+		query = removeLastComma(query)
+		stmt, _ := dbConn.Prepare(query)
+		defer stmt.Close()
+
+		_, err := stmt.Exec(queryValues...)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		processListQuery := "SHOW PROCESSLIST";
+		stmtProcessList, err := dbConn.Query(processListQuery)
+		if err != nil {
+			fmt.Println("stmt process list")
+		}
+		defer stmtProcessList.Close()
+
+		i := 0
+		for stmtProcessList.Next() {
+			i ++
+		}
+
+		fmt.Println("Process List -- on insert -- >>>>>>>")
+		fmt.Println(i)
+	}
 }
 
 
 /**
  * build query to insert single rate modal
  */
-func buildRateModalQuery(rate structs.BitcoinRate, i int) string {
+func buildRateModalQuery(i int) string {
   var query string
 
   if i == 0 {
