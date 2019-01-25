@@ -104,7 +104,7 @@ func GetSymbols() []string {
  *
  */
 func GetCryptoCurrencyData(w http.ResponseWriter, r *http.Request) {
-  fmt.Println("Get crypto current data >>>")
+  fmt.Println("Get crypto current data >>>>>>")
 
   db := db.Conn()
   defer db.Close()
