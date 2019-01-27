@@ -7,6 +7,7 @@ import (
   "encoding/json"
   "stelita-api/rankedCryptoCurrency"
   "stelita-api/db"
+  "stelita-api/errorReporter"
 )
 
 
@@ -54,6 +55,7 @@ func GetCryptoCurrencies(w http.ResponseWriter, r * http.Request) {
 
     err := rows.Scan(&cryptoCurrency.Currency)
     if err != nil {
+      errorReporter.ReportError("Getting crypto currencies from the DB")
       panic(err.Error())
     }
 
@@ -69,9 +71,6 @@ func GetCryptoCurrencies(w http.ResponseWriter, r * http.Request) {
  */
 func GetCryptoCurrencyRates(w http.ResponseWriter, r *http.Request) {
   rankedCryptoCurrencySymbols := rankedCryptoCurrency.GetSymbols()
-
-  /* for testing */
-  // rankedCryptoCurrencySymbols = rankedCryptoCurrencySymbols[0:1]
 
   /* open database connection */
   db := db.Conn()

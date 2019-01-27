@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"sort"
 	"stelita-api/db"
+	"stelita-api/errorReporter"
 )
 
 type BitcoinRate struct {
@@ -30,6 +31,7 @@ func GetBitcoinRates(w http.ResponseWriter, r *http.Request) {
 
   rows, err := db.Query(closingPriceQuery)
   if err != nil {
+		errorReporter.ReportError("Getting bitcoin rates")
     panic(err.Error())
   }
   defer rows.Close()

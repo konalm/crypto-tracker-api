@@ -6,6 +6,7 @@ import (
   "fmt"
   "io/ioutil"
   "stelita-api/structs"
+  "stelita-api/errorReporter"
 )
 
 
@@ -29,7 +30,7 @@ func FetchUSDCryptoRates() []structs.USDRate {
   }
 
   if response.StatusCode != 200 {
-    panic("ERROR fetching usd crypto rates")
+    errorReporter.ReportError("Getting data for crypto rates from Coin API")
   }
 
   body, err := ioutil.ReadAll(response.Body)

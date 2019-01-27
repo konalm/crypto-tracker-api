@@ -8,6 +8,8 @@ import (
 	"time"
 	"stelita-api/structs"
 	"stelita-api/db"
+	"stelita-api/reports"
+	"stelita-api/errorReporter"
 )
 
 
@@ -15,7 +17,7 @@ import (
  *
  */
 func InsertCryptoRates(rates []structs.BitcoinRate) {
-	fmt.Println("<<<  INSERT CRYPTO RATES >>>>")
+	fmt.Println("Insert Crypto Rates")
 
   dbConn := db.Conn()
 	defer dbConn.Close()
@@ -39,14 +41,17 @@ func InsertCryptoRates(rates []structs.BitcoinRate) {
   stmt, _ := dbConn.Prepare(query)
 	defer stmt.Close()
 
+	insertSuccess := true
   _, err := stmt.Exec(queryValues...)
   if err != nil {
-    panic(err.Error())
+		errorReporter.ReportError("Inserting crypo rates")
+    insertSuccess = false
   }
 
 	processListQuery := "SHOW PROCESSLIST";
 	stmtProcessList, err := dbConn.Query(processListQuery)
 	if err != nil {
+		errorReporter.ReportError("Executing process list on insert crypto rates")
 		fmt.Println("stmt process list")
 	}
 	defer stmtProcessList.Close()
@@ -56,8 +61,7 @@ func InsertCryptoRates(rates []structs.BitcoinRate) {
 		i ++
 	}
 
-	fmt.Println("Process List -- on insert -- >>>>>>>")
-	fmt.Println(i)
+  reports.InsertCryptoReport("cryptoRates", insertSuccess, i)
 }
 
 /**
@@ -88,6 +92,7 @@ func InsertUSDCryptoRates(rates []structs.USDRate) {
 
 		_, err := stmt.Exec(queryValues...)
 		if err != nil {
+			errorReporter.ReportError("Inserting USD crypto rates")
 			panic(err.Error())
 		}
 

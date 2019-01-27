@@ -6,6 +6,8 @@ import (
   "io/ioutil"
   "encoding/json"
   "stelita-api/structs"
+  "stelita-api/reports"
+  "stelita-api/errorReporter"
 )
 
 type CoinMarketGapApiResponse struct {
@@ -26,19 +28,22 @@ func FetchRankedCryptoCurrencies() map[string] structs.RankedCryptoCurrency {
     fmt.Println(err.Error())
   }
 
-  if resp.StatusCode != 200 {
-    panic("ERROR fetching ranked crypto currencies")
-  }
-
   body, err := ioutil.ReadAll(resp.Body)
   if err != nil {
     panic("Error reading response body")
+  }
+
+  var responseMessage string
+  if resp.StatusCode != 200 {
+    errorReporter.ReportError("Fetching ranked crypto currencies from Coin API")
+    responseMessage = string(body)
   }
 
   jsonBody := string(body)
   var apiResponse CoinMarketGapApiResponse
   json.Unmarshal([]byte(jsonBody), &apiResponse)
 
+  reports.InsertFetchRankedCryptoCurrenciesReports(resp.StatusCode, responseMessage)
 
   return apiResponse.Data
 }

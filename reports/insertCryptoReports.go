@@ -1,0 +1,35 @@
+package reports
+
+import (
+  "fmt"
+  "stelita-api/db"
+)
+
+/**
+ *
+ */
+func InsertCryptoReport(
+  name string, success bool, dbProcessList int,
+) {
+  fmt.Println("insert crypto report !!")
+
+  db := db.Conn()
+  defer db.Close()
+
+  query :=
+    `INSERT INTO insert_crypto_reports
+    (crypto_currency, success, db_process_list)
+    VALUES (?,?,?)`
+
+  stmt, err := db.Prepare(query)
+  if err != nil {
+    panic(err.Error())
+  }
+
+  _, err = stmt.Exec(name, success, dbProcessList)
+  if err != nil {
+    panic(err.Error())
+  }
+
+  defer stmt.Close()
+}

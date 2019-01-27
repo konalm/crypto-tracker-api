@@ -8,6 +8,8 @@ import (
   "stelita-api/rankedCryptoCurrency"
   "stelita-api/structs"
   "stelita-api/db"
+  "stelita-api/reports"
+  "stelita-api/errorReporter"
 )
 
 type TrendStat struct {
@@ -149,7 +151,10 @@ func handleCryptoTrendStats(cryptoCurrency string) {
  *
  */
 func updateCryptoTrendStats(cryptoCurrency string, trendStatsJson []byte) {
+  fmt.Println("update crypto trend stats !!")
+
   trendStatsString := string(trendStatsJson)
+  successUpdate := true
 
   dbConn := db.Conn()
   defer dbConn.Close()
@@ -158,18 +163,17 @@ func updateCryptoTrendStats(cryptoCurrency string, trendStatsJson []byte) {
 
   stmt, err := dbConn.Prepare(query)
   if err != nil {
-    fmt.Print("PREPARE ERROR !!")
-    panic(err.Error())
+    successUpdate = false
   }
   defer stmt.Close()
 
   _, err = stmt.Exec(trendStatsString, cryptoCurrency)
   if err != nil {
-    fmt.Println("EXEC ERROR !!")
-    panic(err.Error())
+    errorReporter.ReportError("Updating crypto trand statistic")
+    successUpdate = false
   }
 
-  fmt.Println("handled insert >>>> " + cryptoCurrency)
+  fmt.Println("update crypto trend stat >>>> " + cryptoCurrency)
 
   processListQuery := "SHOW PROCESSLIST";
   stmtProcessList, err := dbConn.Query(processListQuery)
@@ -183,6 +187,5 @@ func updateCryptoTrendStats(cryptoCurrency string, trendStatsJson []byte) {
     i ++
   }
 
-  fmt.Println("Process List -- update crypto trend stat ---  >>>>>>>")
-  fmt.Println(i)
+  reports.InsertUpdateCryptoTrendStatReport(cryptoCurrency, successUpdate, i)
 }

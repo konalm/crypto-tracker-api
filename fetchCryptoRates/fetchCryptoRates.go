@@ -3,9 +3,10 @@ package fetchCryptoRates
 import (
   "net/http"
   "encoding/json"
-  "fmt"
   "io/ioutil"
   "stelita-api/structs"
+  "stelita-api/reports"
+  "stelita-api/errorReporter"
 )
 
 
@@ -24,22 +25,25 @@ func FetchCryptoRates() []structs.BitcoinRate {
 
   resp, err := client.Do(request)
   if err != nil {
-    fmt.Println(err.Error())
-  }
-
-  if resp.StatusCode != 200 {
-    panic("ERROR fetching crypto rates")
+    errorReporter.ReportError("Http request to get crypto rates from Coin API")
   }
 
   body, err := ioutil.ReadAll(resp.Body)
   if err != nil {
-    fmt.Println("ERROR reading response body")
+    errorReporter.ReportError("Reading data from Coin API for crypto rates")
   }
 
   jsonBody := string(body)
   var apiResponse ApiResponse
-
   json.Unmarshal([]byte(jsonBody), &apiResponse)
+
+  var responseMessage string
+  if (resp.StatusCode != 200) {
+    errorReporter.ReportError("Getting data from Coin API for crypto rates")
+    responseMessage = string(body)
+  }
+
+  reports.InsertFetchCryptoDataReport("coinapi", resp.StatusCode, responseMessage)
 
   return apiResponse.Rates
 }

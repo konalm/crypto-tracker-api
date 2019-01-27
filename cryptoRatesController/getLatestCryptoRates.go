@@ -6,6 +6,7 @@ import (
   // "fmt"
   "stelita-api/structs"
   "stelita-api/db"
+  "stelita-api/errorReporter"
 )
 
 
@@ -35,6 +36,7 @@ func GetCryptoCurrencyRatesForRsi(currency string) []structs.CryptoRate {
 
     err := rows.Scan(&cryptoRate.Date, &cryptoRate.ClosingPrice, &cryptoRate.Min)
     if err != nil {
+      errorReporter.ReportError("Getting latest crypto currency rates from the DB")
       panic(err.Error())
     }
 

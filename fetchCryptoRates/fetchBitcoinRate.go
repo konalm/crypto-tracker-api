@@ -1,13 +1,17 @@
 package fetchCryptoRates
 
 import (
-	"stelita-api/structs"
-	. "encoding/json"
-	. "fmt"
-	. "io/ioutil"
-	"net/http"
+  "encoding/json"
+  "io/ioutil"
+  "net/http"
+  "stelita-api/structs"
+  "stelita-api/errorReporter"
 )
 
+
+/**
+ *
+ */
 func FetchBitcoinRate() structs.BitcoinRate {
 	client := &http.Client{}
 	request, err := http.NewRequest(
@@ -18,20 +22,20 @@ func FetchBitcoinRate() structs.BitcoinRate {
 
 	resp, err := client.Do(request)
 	if err != nil {
-		Println("handle http error")
+    errorReporter.ReportError("Http request to Coin API")
 	}
 
 	if resp.StatusCode != 200 {
-		panic("ERROR fetching bitcoin rate from coinapi")
+    errorReporter.ReportError("Fetching bitcoin rate from Coin API")
 	}
 
-	body, err := ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		Println("ERROR reading response body")
+    errorReporter.ReportError("Reading data from fetching bitcoin rate from  Coin API")
 	}
 	jsonBody := string(body)
 	var bitcoinRate structs.BitcoinRate
-	Unmarshal([]byte(jsonBody), &bitcoinRate)
+	json.Unmarshal([]byte(jsonBody), &bitcoinRate)
 
 	return bitcoinRate
 }

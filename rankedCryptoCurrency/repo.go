@@ -8,6 +8,7 @@ import (
   "stelita-api/structs"
   "stelita-api/utils"
   "stelita-api/db"
+  "stelita-api/errorReporter"
 )
 
 /**
@@ -16,6 +17,8 @@ import (
 func InsertRankedCryptoCurrencies(
   cryptoCurrencies map[string] structs.RankedCryptoCurrency,
 ) {
+  fmt.Println("Insert Ranked Crypto Currencies")
+
   dbConn := db.Conn()
   defer dbConn.Close()
 
@@ -44,7 +47,7 @@ func InsertRankedCryptoCurrencies(
 
   _, err := stmt.Exec(queryValues...)
   if err != nil {
-    panic("ERROR executing query" + err.Error())
+    errorReporter.ReportError("Inserting ranked crypto currencies")
   }
 
   defer stmt.Close()
