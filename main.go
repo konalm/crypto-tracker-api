@@ -3,6 +3,7 @@ package main
 import (
   "log"
   "net/http"
+  "fmt"
   "github.com/gorilla/handlers"
   "stelita-api/router"
   "stelita-api/cronJobs"
@@ -19,9 +20,13 @@ func main() {
 	cronJobs.HandleBitcoinRate()
   cronJobs.HandleRankedCryptoCurrencyUpdate()
 
-  originsAllowed := handlers.AllowedOrigins([]string{config.ALLOWED_CLIENT})
-  headersAllowed := handlers.AllowedHeaders([]string{"X-Requested-With"})
-  methodsAllowed := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
+  fmt.Println("Allowed Client >>>")
+  fmt.Println(config.ALLOWED_CLIENT)
+
+  // originsAllowed := handlers.AllowedOrigins([]string{config.ALLOWED_CLIENT})
+  originsAllowed := handlers.AllowedOrigins([]string{"http://localhost:8080"})
+  headersAllowed := handlers.AllowedHeaders([]string{"pkm-client", "X-Requested-With", "content-type", "Authorization", "Access-Control-Allow-Origin"})
+  methodsAllowed := handlers.AllowedMethods([]string{"POST", "HEAD", "GET", "PUT", "OPTIONS"})
 
   log.Fatal(http.ListenAndServe(":" + config.PORT, handlers.CORS(originsAllowed, headersAllowed, methodsAllowed)(appRouter)))
 }

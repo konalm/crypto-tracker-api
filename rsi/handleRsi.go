@@ -55,8 +55,7 @@ func handleCryptoTrendStats(cryptoCurrency string) {
   fifteenMin25Ma := CalculateMovingAverage(ratesIn15MinPeriod, 25)
   fifteenMin50Ma := CalculateMovingAverage(ratesIn15MinPeriod, 50)
   fifteenMin100Ma := CalculateMovingAverage(ratesIn15MinPeriod, 100)
-
-
+  
   /* 1 hr period */
   ratesIn1HrPeriod := abstractRatesByTimePeriod.OneHourPeriods(rates)
   oneHrRsi := CalculateRsi(ratesIn1HrPeriod)
@@ -67,7 +66,6 @@ func handleCryptoTrendStats(cryptoCurrency string) {
   oneHr50Ma := CalculateMovingAverage(ratesIn1HrPeriod, 50)
   oneHr100Ma := CalculateMovingAverage(ratesIn1HrPeriod, 100)
 
-
   /* 3hr period */
   ratesIn3HrPeriod := abstractRatesByTimePeriod.ThreeHourPeriods(rates)
   threeHrRsi := CalculateRsi(ratesIn3HrPeriod)
@@ -77,7 +75,6 @@ func handleCryptoTrendStats(cryptoCurrency string) {
   threeHr25Ma := CalculateMovingAverage(ratesIn3HrPeriod, 25)
   threeHr50Ma := CalculateMovingAverage(ratesIn3HrPeriod, 50)
   threeHr100Ma := CalculateMovingAverage(ratesIn3HrPeriod, 100)
-
 
   /* 24hr period */
   ratesIn24HrPeriod := abstractRatesByTimePeriod.TwentyFourPeriods(rates)

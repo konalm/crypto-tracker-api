@@ -1,41 +1,22 @@
-package main
+package authentication
 
 import (
   "fmt"
-  "time"
+  "os"
   "github.com/dgrijalva/jwt-go"
 )
 
-func main() {
-  fmt.Println("JWT TOKENS")
-
-  mySigningKey := []byte("super_secret")
-
-  expireTime := time.Now().Add(time.Hour * 48).Unix()
-
-  // Create the Claims
-  claims := &jwt.StandardClaims{
-    ExpiresAt: expireTime,
-    Issuer: "test",
-  }
-
-  token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-  ss, err := token.SignedString(mySigningKey)
-  if err != nil {
-    panic(err.Error())
-  }
-
-  fmt.Println("token >>>>")
-  fmt.Println(ss)
-
-  validateToken(ss)
-}
-
-
-func validateToken(tokenString string) {
+/**
+ *
+ */
+func ValidateToken(tokenString string) bool {
   fmt.Println("Validate Token")
+  fmt.Println(tokenString)
 
-  mySigningKey := []byte("super_secret")
+  fmt.Println("token secret >>>")
+  fmt.Println(os.Getenv("TOKEN_SECRET"))
+
+  mySigningKey := []byte(os.Getenv("TOKEN_SECRET"))
 
   // Parse takes the token string and a function for looking up the key. The latter is especially
   // useful if you use multiple keys for your application.  The standard is to use 'kid' in the
@@ -51,11 +32,15 @@ func validateToken(tokenString string) {
       return mySigningKey, nil
   })
 
-  if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-      fmt.Println(claims["foo"], claims["nbf"])
-  } else {
-      fmt.Println(err)
-  }
+  // return true
 
-  fmt.Println("END OF CHECK >>")
+  if token.Valid {
+      fmt.Println("TOKEN PASSED")
+    
+      return true
+  } else {
+    fmt.Println("TOKEN FAILED")
+    fmt.Println(err)
+    return false
+  }
 }
