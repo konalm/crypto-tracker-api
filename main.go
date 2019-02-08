@@ -23,8 +23,7 @@ func main() {
   fmt.Println("Allowed Client >>>")
   fmt.Println(config.ALLOWED_CLIENT)
 
-  // originsAllowed := handlers.AllowedOrigins([]string{config.ALLOWED_CLIENT})
-  originsAllowed := handlers.AllowedOrigins([]string{"http://localhost:8080"})
+  originsAllowed := handlers.AllowedOrigins([]string{config.ALLOWED_CLIENT, config.ALLOWED_CLIENT_2})
   headersAllowed := handlers.AllowedHeaders([]string{"pkm-client", "X-Requested-With", "content-type", "Authorization", "Access-Control-Allow-Origin"})
   methodsAllowed := handlers.AllowedMethods([]string{"POST", "HEAD", "GET", "PUT", "OPTIONS"})
 

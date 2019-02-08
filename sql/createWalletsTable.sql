@@ -1,0 +1,5 @@
+CREATE TABLE wallets (
+  id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id VARCHAR(255) NOT NULL,
+  date_created TIMESTAMP
+)

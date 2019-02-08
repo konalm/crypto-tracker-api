@@ -1,0 +1,10 @@
+truncate bitcoin_rates;
+truncate crypto_currency_logos;
+truncate crypto_currency_rsis;
+truncate crypto_rates;
+truncate crypto_rates_clone;
+truncate fetch_crypto_data_reports;
+truncate fetch_ranked_crypto_currencies_reports;
+truncate insert_crypto_reports;
+truncate ranked_crypto_currencies;
+truncate update_crypto_trend_stat_reports;

@@ -17,27 +17,10 @@ type response struct {
  * If credentials are authenticated return JWT access token
  */
 func Login(w http.ResponseWriter, r *http.Request) {
-  fmt.Println("Login")
-
   username := r.FormValue("username")
   password := r.FormValue("password")
 
-  fmt.Println("username >>>")
-  fmt.Println(username)
-
-  fmt.Println("password >>>")
-  fmt.Println(password)
-
-  fmt.Println("hashed password")
-  hashedPassw, _ := bcrypt.GenerateFromPassword([]byte(password), 1)
-
-  fmt.Println(string(hashedPassw))
-
   user := user.GetUserByUsername(username)
-
-  fmt.Println("user password >>>")
-  fmt.Println(user.Password)
-
   compareHashedPassword := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 
   if compareHashedPassword != nil {
@@ -56,7 +39,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 }
 
 
-
+/**
+ *
+ */
 func ProtectedResource(w http.ResponseWriter, r *http.Request) {
   fmt.Println("Protected Resource")
 
