@@ -1,7 +1,6 @@
 package rankedCryptoCurrency
 
 import (
-  "fmt"
   "net/http"
   "encoding/json"
   _ "github.com/go-sql-driver/mysql"
@@ -17,8 +16,6 @@ import (
 func InsertRankedCryptoCurrencies(
   cryptoCurrencies map[string] structs.RankedCryptoCurrency,
 ) {
-  fmt.Println("Insert Ranked Crypto Currencies")
-
   dbConn := db.Conn()
   defer dbConn.Close()
 
@@ -73,8 +70,6 @@ func DestroyCurrentRankedCryptoCurrencies() {
  *
  */
 func GetSymbols() []string {
-  fmt.Println("Get Symbols")
-
   dbConn := db.Conn()
   defer dbConn.Close()
 
@@ -97,8 +92,6 @@ func GetSymbols() []string {
     symbols = append(symbols, symbol)
   }
 
-  fmt.Println("got all symbols from ranked crypto currencies <<< Complete")
-
   return symbols
 }
 
@@ -107,8 +100,6 @@ func GetSymbols() []string {
  *
  */
 func GetCryptoCurrencyData(w http.ResponseWriter, r *http.Request) {
-  fmt.Println("Get crypto current data >>>>>>")
-
   db := db.Conn()
   defer db.Close()
 

@@ -4,12 +4,12 @@ import (
   "flag"
   "net/http"
   "github.com/gorilla/mux"
+  "stelita-api/handler"
   "stelita-api/bitcoinRates"
   "stelita-api/cryptoRatesController"
   "stelita-api/rankedCryptoCurrency"
   "stelita-api/authentication"
   "stelita-api/middleware"
-  "stelita-api/reports"
 )
 
 
@@ -20,16 +20,18 @@ func Index() *mux.Router {
   router.HandleFunc("/crypto-currencies", cryptoRatesController.GetCryptoCurrencies).Methods("GET")
   router.HandleFunc("/crypto-rates", cryptoRatesController.GetCryptoCurrencyRates).Methods("GET")
   router.HandleFunc("/crypto-data", rankedCryptoCurrency.GetCryptoCurrencyData).Methods("GET")
-
-  router.HandleFunc("/login", authentication.Login).Methods("POST")
+  router.HandleFunc("/login", authentication.Login).Methods("POST", "OPTIONS")
   router.HandleFunc("/auth-verification", authentication.AuthCheck).Methods("GET")
 
   authRouter := router.NewRoute().Subrouter()
+  authRouter.HandleFunc("/setup-wallet", handler.SetupWallet).Methods("POST")
+  authRouter.HandleFunc("/transaction", handler.CreateTransaction).Methods("POST")
   authRouter.HandleFunc("/protected", authentication.ProtectedResource).Methods("GET")
-  authRouter.HandleFunc("/crypto-data-reports", reports.GetCryptoDataReports).Methods("GET")
-  authRouter.HandleFunc("/ranked-crypto-currencies-reports", reports.GetRankedCryptoCurrenciesReports).Methods("GET")
-  authRouter.HandleFunc("/insert-crypto-reports", reports.GetInsertedCryptoReports).Methods("GET")
-  authRouter.HandleFunc("/update-crypto-trend-stat-reports", reports.GetUpdateCryptoTrendStatReports).Methods("GET")
+  authRouter.HandleFunc("/wallet-states", handler.GetUserWalletStates).Methods("GET")
+  authRouter.HandleFunc("/user-transactions", handler.GetUserTransactions).Methods("GET")
+  authRouter.HandleFunc("/currencies-in-wallet", handler.GetCurrenciesInWallet).Methods("GET")
+  authRouter.HandleFunc("/user-wallet-currencies", handler.GetWalletCurrenciesForWallet).Methods("GET")
+  authRouter.HandleFunc("/users-latest-wallet", handler.GetUserLatestWalletState).Methods("GET")
   authRouter.Use(middleware.Auth)
 
   var dir string

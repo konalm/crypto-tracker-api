@@ -14,13 +14,12 @@ type BitcoinRate struct {
   ClosingPrice float64
 }
 
-const closingPriceQuery = `
-  SELECT date, closing_price
+const closingPriceQuery =
+	`SELECT date, closing_price
   FROM bitcoin_rates
   WHERE min in (0, 15, 30, 45)
   ORDER BY date
-  DESC LIMIT 15
-`
+  DESC LIMIT 15`
 
 /**
  *

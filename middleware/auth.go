@@ -1,21 +1,20 @@
 package middleware
 
 import (
-  "fmt"
   "net/http"
   "stelita-api/authentication"
+  "github.com/gorilla/context"
 )
 
 func Auth(next http.Handler) http.Handler {
-  fmt.Println("Auth Middleware")
-
   return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
     // get token out of header
     authToken := r.Header.Get("Authorization")
-    validAuthToken := authentication.ValidateToken(authToken)
+    authTokenResponse := authentication.ValidateToken(authToken)
 
-    if validAuthToken {
+    if authTokenResponse.Valid {
       // Call the next handler, which can be another middleware in the chain, or the final handler.
+      context.Set(r, "userId", authTokenResponse.UserId)
       next.ServeHTTP(w, r)
       return
     }

@@ -4,12 +4,12 @@ import (
   "fmt"
   "golang.org/x/crypto/bcrypt"
   "net/http"
-  // "github.com/gorilla/mux"
   "encoding/json"
   "stelita-api/user"
 )
 
 type response struct {
+  UserId int
   AccessToken string
 }
 
@@ -21,7 +21,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
   password := r.FormValue("password")
 
   user := user.GetUserByUsername(username)
-  compareHashedPassword := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+  compareHashedPassword :=
+    bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 
   if compareHashedPassword != nil {
     w.WriteHeader(404)
@@ -29,9 +30,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  token := generateJWT()
+  token := generateJWT(user.Id)
 
   var loginResponse = response {
+    UserId: user.Id,
     AccessToken: token,
   }
 

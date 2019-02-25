@@ -1,7 +1,8 @@
 CREATE TABLE transactions (
-  id INT(6) AUTO_INCREMENT PRIMARY KEY,
+  id CHAR(36) PRIMARY KEY,
   user_id INT NOT NULL,
-  withdrawal_id INT NOT NULL,
-  deposit_id INT NOT NULL,
-  exchange_rate FLOAT NOT NULL
+  withdrawal_id char(36) NULL,
+  deposit_id char(36) NOT NULL,
+  exchange_rate FLOAT NOT NULL,
+  date_created TIMESTAMP
 )

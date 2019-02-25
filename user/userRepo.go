@@ -6,6 +6,7 @@ import (
 )
 
 type User struct {
+  Id int
   Username string
   Password string
 }
@@ -17,11 +18,11 @@ func GetUserByUsername(username string) User {
   db := db.Conn()
   defer db.Close()
 
-  query := "SELECT username, password FROM users WHERE username = ? AND admin = 1";
+  query := "SELECT id, username, password FROM users WHERE username = ? AND admin = 1";
   stmt := db.QueryRow(query, username)
 
   var user User
-  err := stmt.Scan(&user.Username, &user.Password)
+  err := stmt.Scan(&user.Id, &user.Username, &user.Password)
   if err != nil {
     if err == sql.ErrNoRows {
       return User{Username: "", Password: ""}
