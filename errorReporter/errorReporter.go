@@ -32,6 +32,7 @@ func ReportError(errorMessage string) {
   send(errorMessage)
 }
 
+
 func send(body string) {
 	from := "connorlloydmoore@gmail.com"
   pass := "tvaupqoyhqqzwqkq"

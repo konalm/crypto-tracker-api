@@ -1,20 +1,22 @@
 package rankedCryptoCurrency
 
 import (
-  "net/http"
+  "fmt"
   "encoding/json"
+  // "strings"
   _ "github.com/go-sql-driver/mysql"
-  "stelita-api/structs"
   "stelita-api/utils"
   "stelita-api/db"
   "stelita-api/errorReporter"
+  "stelita-api/walletCurrency"
+  "stelita-api/walletState"
 )
 
 /**
  *
  */
 func InsertRankedCryptoCurrencies(
-  cryptoCurrencies map[string] structs.RankedCryptoCurrency,
+  cryptoCurrencies map[string] RankedCryptoCurrency,
 ) {
   dbConn := db.Conn()
   defer dbConn.Close()
@@ -99,7 +101,11 @@ func GetSymbols() []string {
 /**
  *
  */
-func GetCryptoCurrencyData(w http.ResponseWriter, r *http.Request) {
+func GetCryptoCurrencyData(
+  currenciesInWallet []walletCurrency.WalletCurrencyModel,
+) []CryptoCurrencyData {
+  fmt.Println("REPO >> Get Crypto currency data >>>")
+
   db := db.Conn()
   defer db.Close()
 
@@ -112,7 +118,7 @@ func GetCryptoCurrencyData(w http.ResponseWriter, r *http.Request) {
       ON logo.currency = crypto.name
     ORDER BY rank`
 
-  var cryptoCurrencyData []structs.CryptoCurrencyData
+  var cryptoCurrencyData []CryptoCurrencyData
 
   rows, err := db.Query(query)
   if err != nil {
@@ -120,7 +126,10 @@ func GetCryptoCurrencyData(w http.ResponseWriter, r *http.Request) {
   }
 
   for rows.Next() {
-    var crypto structs.CryptoCurrencyData
+    var crypto CryptoCurrencyData
+    crypto.SellIndicator = false
+    crypto.BuyIndicator = false
+
     var trendStats []byte
 
     err := rows.Scan(
@@ -137,8 +146,24 @@ func GetCryptoCurrencyData(w http.ResponseWriter, r *http.Request) {
       }
     }
 
+    crypto.InWallet =
+      walletState.CheckWalletStateContainsCurrency(currenciesInWallet, crypto.Name)
+
+    if crypto.TrendStats != nil {
+      fifteenMinTrendStat := crypto.TrendStats[0]
+      rsi := fifteenMinTrendStat.Rsi
+
+      if rsi <= 30 {
+        crypto.BuyIndicator = true
+      }
+
+      if rsi >= 70 {
+        crypto.SellIndicator = true
+      }
+    }
+
     cryptoCurrencyData = append(cryptoCurrencyData, crypto)
   }
 
-  json.NewEncoder(w).Encode(cryptoCurrencyData)
+  return cryptoCurrencyData
 }

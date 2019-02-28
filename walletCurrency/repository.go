@@ -136,9 +136,6 @@ func GetWalletCurrencyFromWalletIdCurrency(walletId string, currency string) Wal
  *
  */
 func GetWalletCurrenciesForWallet(walletId string) []WalletCurrencyModel {
-  fmt.Println("get wallet currencies for wallet >>>")
-  fmt.Println(walletId + "<<<<<")
-
   db := db.Conn()
   defer db.Close()
 

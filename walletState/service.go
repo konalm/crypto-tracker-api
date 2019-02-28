@@ -20,7 +20,7 @@ func BuildWalletStateJson(walletId string) string {
   for _, currency := range walletCurrencies {
     fmt.Println("in currency loop")
 
-    var walletStateModelCurrency = WalletStateModelCurrency {
+    var walletStateModelCurrency = walletCurrency.WalletCurrencyModel {
       Currency: currency.Currency,
       Symbol: currency.Symbol,
       Amount: currency.Amount,
@@ -56,7 +56,7 @@ func CalcWalletState(walletId string, transactionId string) string {
   var newWalletState WalletStateModelCurrencies
 
   if lastWalletState.Id == "" {
-    var currencyInWallet = WalletStateModelCurrency{
+    var currencyInWallet = walletCurrency.WalletCurrencyModel {
                              Currency: "Dollar",
                              Symbol: "USD",
                              Amount: 10000.00,
@@ -66,14 +66,14 @@ func CalcWalletState(walletId string, transactionId string) string {
     /* calc based on previous wallet and transaction */
     transaction := transaction.GetTransactionModel(transactionId)
 
-    walletStateHasCurrency := checkWalletStateContainsCurrency(
+    walletStateHasCurrency := CheckWalletStateContainsCurrency(
                                 lastWalletState.Currencies,
                                 transaction.DepositCurrency,
                               )
     newWalletState.Currencies = lastWalletState.Currencies
 
     if !walletStateHasCurrency {
-      var depositCurrency = WalletStateModelCurrency{
+      var depositCurrency = walletCurrency.WalletCurrencyModel {
                               Currency: transaction.DepositCurrency,
                               Amount: transaction.DepositAmount,
                             }
@@ -106,8 +106,8 @@ func CalcWalletState(walletId string, transactionId string) string {
 /**
  *
  */
-func checkWalletStateContainsCurrency(
-  walletStateCurrencies []WalletStateModelCurrency,
+func CheckWalletStateContainsCurrency(
+  walletStateCurrencies []walletCurrency.WalletCurrencyModel,
   depositCurrency string,
 ) bool {
   fmt.Println("check wallet state contains currency !!")
@@ -133,7 +133,7 @@ func checkWalletStateContainsCurrency(
  *
  */
 func getIndexOfCurrencyInWallet(
-  walletStateCurrencies []WalletStateModelCurrency,
+  walletStateCurrencies []walletCurrency.WalletCurrencyModel,
   depositCurrency string,
 ) int {
   for i, currency := range walletStateCurrencies {
@@ -148,7 +148,9 @@ func getIndexOfCurrencyInWallet(
 /**
  *
  */
-func GetCurrenciesFromWalletState(walletCurrencies []WalletStateModelCurrency) []string {
+func GetCurrenciesFromWalletState(
+  walletCurrencies []walletCurrency.WalletCurrencyModel,
+) []string {
   var currencies []string
 
   for _, currency := range walletCurrencies {

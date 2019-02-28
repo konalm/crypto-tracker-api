@@ -7,7 +7,6 @@ import (
   "stelita-api/handler"
   "stelita-api/bitcoinRates"
   "stelita-api/cryptoRatesController"
-  "stelita-api/rankedCryptoCurrency"
   "stelita-api/authentication"
   "stelita-api/middleware"
 )
@@ -19,11 +18,11 @@ func Index() *mux.Router {
   router.HandleFunc("/bitcoin-rates", bitcoinRates.GetBitcoinRates).Methods("GET")
   router.HandleFunc("/crypto-currencies", cryptoRatesController.GetCryptoCurrencies).Methods("GET")
   router.HandleFunc("/crypto-rates", cryptoRatesController.GetCryptoCurrencyRates).Methods("GET")
-  router.HandleFunc("/crypto-data", rankedCryptoCurrency.GetCryptoCurrencyData).Methods("GET")
   router.HandleFunc("/login", authentication.Login).Methods("POST", "OPTIONS")
   router.HandleFunc("/auth-verification", authentication.AuthCheck).Methods("GET")
 
   authRouter := router.NewRoute().Subrouter()
+  authRouter.HandleFunc("/crypto-data", handler.GetCryptoCurrencyData).Methods("GET")
   authRouter.HandleFunc("/setup-wallet", handler.SetupWallet).Methods("POST")
   authRouter.HandleFunc("/transaction", handler.CreateTransaction).Methods("POST")
   authRouter.HandleFunc("/protected", authentication.ProtectedResource).Methods("GET")

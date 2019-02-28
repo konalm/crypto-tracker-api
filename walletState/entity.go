@@ -1,5 +1,9 @@
 package walletState
 
+import (
+  "stelita-api/walletCurrency"
+)
+
 
 type WalletState struct {
   Id string
@@ -13,13 +17,13 @@ type WalletStateModel struct {
   UserId int
   WalletDateCreated string
   Id string
-  Currencies []WalletStateModelCurrency
+  Currencies []walletCurrency.WalletCurrencyModel
   TransactionId string
   DateCreated string
 }
 
 type WalletStateModelCurrencies struct {
-  Currencies []WalletStateModelCurrency
+  Currencies []walletCurrency.WalletCurrencyModel
 }
 
 type WalletStateModelCurrency struct {

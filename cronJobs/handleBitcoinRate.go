@@ -5,6 +5,7 @@ import (
   "stelita-api/cryptoRatesController"
   "stelita-api/fetchCryptoRates"
   "stelita-api/rsi"
+  "stelita-api/indicatorReporter"
 )
 
 /**
@@ -18,5 +19,6 @@ func HandleBitcoinRate() {
     cryptoRates := fetchCryptoRates.FetchCryptoRates()
     cryptoRatesController.InsertCryptoRates(cryptoRates)
     rsi.HandleRsi()
+    indicatorReporter.ReportIndicatorsViaEmail(1)
   })
 }

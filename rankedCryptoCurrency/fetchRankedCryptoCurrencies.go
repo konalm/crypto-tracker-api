@@ -5,20 +5,19 @@ import (
   "fmt"
   "io/ioutil"
   "encoding/json"
-  "stelita-api/structs"
   "stelita-api/reports"
   "stelita-api/errorReporter"
 )
 
 type CoinMarketGapApiResponse struct {
-  Data map[string] structs.RankedCryptoCurrency
+  Data map[string] RankedCryptoCurrency
 }
 
 
 /**
  *
  */
-func FetchRankedCryptoCurrencies() map[string] structs.RankedCryptoCurrency {
+func FetchRankedCryptoCurrencies() map[string] RankedCryptoCurrency {
   client := &http.Client{}
   url := "https://api.coinmarketcap.com/v2/ticker/?limit=100"
   request, err := http.NewRequest("GET", url, nil)
