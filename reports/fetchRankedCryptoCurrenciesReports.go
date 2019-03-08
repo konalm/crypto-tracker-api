@@ -1,7 +1,6 @@
 package reports
 
 import (
-  "fmt"
   "stelita-api/db"
 )
 
@@ -9,8 +8,6 @@ import (
  *
  */
 func InsertFetchRankedCryptoCurrenciesReports(requestStatus int, notes string) {
-  fmt.Println("update ranked crypto currencies report !!")
-
   db := db.Conn()
   defer db.Close()
 

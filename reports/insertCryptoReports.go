@@ -1,7 +1,6 @@
 package reports
 
 import (
-  "fmt"
   "stelita-api/db"
 )
 
@@ -11,8 +10,6 @@ import (
 func InsertCryptoReport(
   name string, success bool, dbProcessList int,
 ) {
-  fmt.Println("insert crypto report !!")
-
   db := db.Conn()
   defer db.Close()
 

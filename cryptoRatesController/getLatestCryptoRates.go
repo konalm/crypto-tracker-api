@@ -21,7 +21,8 @@ func GetCryptoCurrencyRatesForRsi(currency string) []structs.CryptoRate {
     `SELECT date, closing_price, min
     FROM crypto_rates
     WHERE currency = ?
-      AND date > (NOW() - INTERVAL 16 DAY)`
+      AND date > (NOW() - INTERVAL 16 DAY)
+    ORDER BY date DESC`
 
   rows, err := dbConn.Query(query, currency)
   if err != nil {

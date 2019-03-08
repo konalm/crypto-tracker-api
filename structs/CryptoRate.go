@@ -8,6 +8,6 @@ type CryptoRate struct {
   AverageGain float64
   AverageLoss float64
   Min int
-  Rsf float64
-  Rsi float64
+  RelativeStrengthFactor float64
+  RelativeStrengthIndex float64
 }

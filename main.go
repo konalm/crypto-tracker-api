@@ -8,7 +8,7 @@ import (
   "stelita-api/cronJobs"
   "stelita-api/env"
   "stelita-api/config"
-  // "stelita-api/indicatorReporter"
+  // "stelita-api/rsi"
 )
 
 
@@ -16,6 +16,8 @@ func main() {
   env.SetEnvVariables()
 
   appRouter := router.Index()
+
+// rsi.HandleRsi()
 
 	cronJobs.HandleBitcoinRate()
   cronJobs.HandleRankedCryptoCurrencyUpdate()

@@ -2,7 +2,7 @@ package handler
 
 
 import (
-  // "fmt"
+  "fmt"
   "net/http"
   "github.com/gorilla/context"
   "encoding/json"
@@ -18,6 +18,8 @@ import (
  *
  */
 func GetCryptoCurrencyData(w http.ResponseWriter, r *http.Request) {
+  fmt.Println("get crypto currency data !!")
+
   userIdInterface := context.Get(r, "userId")
   var userId int = userIdInterface.(int)
 

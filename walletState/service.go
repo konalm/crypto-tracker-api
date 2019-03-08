@@ -11,8 +11,6 @@ import (
  *
  */
 func BuildWalletStateJson(walletId string) string {
-  fmt.Println("build wallet state json")
-
   var walletState WalletStateModelCurrencies
 
   walletCurrencies := walletCurrency.GetWalletCurrenciesForWallet(walletId)
@@ -34,9 +32,6 @@ func BuildWalletStateJson(walletId string) string {
     panic(err.Error())
   }
 
-  fmt.Println("wallet state json >>>")
-  fmt.Println( string(walletStateJson) )
-
   return string(walletStateJson)
 }
 
@@ -45,8 +40,6 @@ func BuildWalletStateJson(walletId string) string {
  *
  */
 func CalcWalletState(walletId string, transactionId string) string {
-  fmt.Println("Service >> calc wallet state")
-
   type WalletState struct {
     Currencies []CurrencyInWallet
   }
@@ -110,9 +103,6 @@ func CheckWalletStateContainsCurrency(
   walletStateCurrencies []walletCurrency.WalletCurrencyModel,
   depositCurrency string,
 ) bool {
-  fmt.Println("check wallet state contains currency !!")
-  fmt.Println(depositCurrency)
-
   for _, currency := range walletStateCurrencies {
     fmt.Println("range >>")
     fmt.Println("symbol >>> " + currency.Symbol)

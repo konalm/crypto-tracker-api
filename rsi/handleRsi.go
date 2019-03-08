@@ -6,18 +6,10 @@ import (
   "stelita-api/cryptoRatesController"
   "stelita-api/abstractRatesByTimePeriod"
   "stelita-api/rankedCryptoCurrency"
-  "stelita-api/structs"
   "stelita-api/db"
   "stelita-api/reports"
   "stelita-api/errorReporter"
 )
-
-type TrendStat struct {
-  Time_period string
-  Rsi float64
-  RateChange float64
-  MovingAverages structs.MovingAverage
-}
 
 
 /**
@@ -43,22 +35,31 @@ func HandleRsi() {
  */
 func handleCryptoTrendStats(cryptoCurrency string) {
   fmt.Println("handle crypto trend stats")
+  fmt.Println(cryptoCurrency)
 
   rates := cryptoRatesController.GetCryptoCurrencyRatesForRsi(cryptoCurrency)
 
   /* 15 min period */
   ratesIn15MinPeriod := abstractRatesByTimePeriod.FifteenMinPeriods(rates)
-  fifteenMinRsi := CalculateRsi(ratesIn15MinPeriod)
+  fifteenMinRsi := CalculateRsi(ratesIn15MinPeriod, 0)
+  fifteenMinRsiSmoothing50 := CalculateRsi(ratesIn15MinPeriod, 50)
+  fifteenMinRsiSmoothing100 := CalculateRsi(ratesIn15MinPeriod, 100)
+  fifteenMinRsiSmoothing250 := CalculateRsi(ratesIn15MinPeriod, 250)
+
   fifteenMinRateChange := CalculateRateChange(ratesIn15MinPeriod)
 
   fifteenMin10Ma := CalculateMovingAverage(ratesIn15MinPeriod, 10)
   fifteenMin25Ma := CalculateMovingAverage(ratesIn15MinPeriod, 25)
   fifteenMin50Ma := CalculateMovingAverage(ratesIn15MinPeriod, 50)
   fifteenMin100Ma := CalculateMovingAverage(ratesIn15MinPeriod, 100)
-  
+
   /* 1 hr period */
   ratesIn1HrPeriod := abstractRatesByTimePeriod.OneHourPeriods(rates)
-  oneHrRsi := CalculateRsi(ratesIn1HrPeriod)
+  oneHrRsi := CalculateRsi(ratesIn1HrPeriod, 0)
+  oneHrRsiSmoothing50 := CalculateRsi(ratesIn1HrPeriod, 50)
+  oneHrRsiSmoothing100 := CalculateRsi(ratesIn1HrPeriod, 100)
+  oneHrRsiSmoothing250 := CalculateRsi(ratesIn1HrPeriod, 250)
+
   oneHrRateChange := CalculateRateChange(ratesIn1HrPeriod)
 
   oneHr10Ma := CalculateMovingAverage(ratesIn1HrPeriod, 10)
@@ -68,7 +69,11 @@ func handleCryptoTrendStats(cryptoCurrency string) {
 
   /* 3hr period */
   ratesIn3HrPeriod := abstractRatesByTimePeriod.ThreeHourPeriods(rates)
-  threeHrRsi := CalculateRsi(ratesIn3HrPeriod)
+  threeHrRsi := CalculateRsi(ratesIn3HrPeriod, 0)
+  threeHrRsiSmoothing50 := CalculateRsi(ratesIn3HrPeriod, 50)
+  threeHrRsiSmoothing100 := CalculateRsi(ratesIn3HrPeriod, 100)
+  threeHrRsiSmoothing250 := CalculateRsi(ratesIn3HrPeriod, 250)
+
   threeHrRateChange := CalculateRateChange(ratesIn3HrPeriod)
 
   threeHr10Ma := CalculateMovingAverage(ratesIn3HrPeriod, 10)
@@ -78,7 +83,11 @@ func handleCryptoTrendStats(cryptoCurrency string) {
 
   /* 24hr period */
   ratesIn24HrPeriod := abstractRatesByTimePeriod.TwentyFourPeriods(rates)
-  oneDayRsi := CalculateRsi(ratesIn24HrPeriod)
+  oneDayRsi := CalculateRsi(ratesIn24HrPeriod, 0)
+  oneDayRsiSmoothing50 := CalculateRsi(ratesIn24HrPeriod, 50)
+  oneDayRsiSmoothing100 := CalculateRsi(ratesIn24HrPeriod, 100)
+  oneDayRsiSmoothing250 := CalculateRsi(ratesIn24HrPeriod, 250)
+
   oneDayRateChange := CalculateRateChange(ratesIn24HrPeriod)
 
   oneDay10Ma := CalculateMovingAverage(ratesIn24HrPeriod, 10)
@@ -90,9 +99,14 @@ func handleCryptoTrendStats(cryptoCurrency string) {
   var trendStats = []TrendStat {
     TrendStat {
       Time_period: "15min",
-      Rsi: fifteenMinRsi,
+      RsiStats: RsiStats {
+        Rsi: fifteenMinRsi,
+        Smoothing50: fifteenMinRsiSmoothing50,
+        Smoothing100: fifteenMinRsiSmoothing100,
+        Smoothing250: fifteenMinRsiSmoothing250,
+      },
       RateChange: fifteenMinRateChange,
-      MovingAverages: structs.MovingAverage {
+      MovingAverages: MovingAverage {
         LengthOf10: fifteenMin10Ma,
         LengthOf25: fifteenMin25Ma,
         LengthOf50: fifteenMin50Ma,
@@ -101,9 +115,14 @@ func handleCryptoTrendStats(cryptoCurrency string) {
     },
     TrendStat {
       Time_period: "1hr",
-      Rsi: oneHrRsi,
+      RsiStats: RsiStats {
+        Rsi: oneHrRsi,
+        Smoothing50: oneHrRsiSmoothing50,
+        Smoothing100: oneHrRsiSmoothing100,
+        Smoothing250: oneHrRsiSmoothing250,
+      },
       RateChange: oneHrRateChange,
-      MovingAverages: structs.MovingAverage {
+      MovingAverages: MovingAverage {
         LengthOf10: oneHr10Ma,
         LengthOf25: oneHr25Ma,
         LengthOf50: oneHr50Ma,
@@ -112,9 +131,14 @@ func handleCryptoTrendStats(cryptoCurrency string) {
     },
     TrendStat {
       Time_period: "3hr",
-      Rsi: threeHrRsi,
+      RsiStats: RsiStats {
+        Rsi: threeHrRsi,
+        Smoothing50: threeHrRsiSmoothing50,
+        Smoothing100: threeHrRsiSmoothing100,
+        Smoothing250: threeHrRsiSmoothing250,
+      },
       RateChange: threeHrRateChange,
-      MovingAverages: structs.MovingAverage {
+      MovingAverages: MovingAverage {
         LengthOf10: threeHr10Ma,
         LengthOf25: threeHr25Ma,
         LengthOf50: threeHr50Ma,
@@ -123,9 +147,14 @@ func handleCryptoTrendStats(cryptoCurrency string) {
     },
     TrendStat {
       Time_period: "24hr",
-      Rsi: oneDayRsi,
+      RsiStats: RsiStats {
+        Rsi: oneDayRsi,
+        Smoothing50: oneDayRsiSmoothing50,
+        Smoothing100: oneDayRsiSmoothing100,
+        Smoothing250: oneDayRsiSmoothing250,
+      },
       RateChange: oneDayRateChange,
-      MovingAverages: structs.MovingAverage {
+      MovingAverages: MovingAverage {
         LengthOf10: oneDay10Ma,
         LengthOf25: oneDay25Ma,
         LengthOf50: oneDay50Ma,

@@ -1,7 +1,6 @@
 package reports
 
 import (
-  "fmt"
   "stelita-api/db"
 )
 
@@ -11,8 +10,6 @@ import (
 func InsertFetchCryptoDataReport(
   thirdPartyApi string, requestStatus int, requestMessage string,
 ) {
-  fmt.Println("insert fetch crypto data report !!")
-
   db := db.Conn()
   defer db.Close()
 
