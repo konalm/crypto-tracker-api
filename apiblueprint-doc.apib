@@ -1,0 +1,105 @@
+FORMAT: 1A
+
+# Stelita
+
+# API for stelita, the crpto trading bot that recommemds the best time to buy and sell crypto currencies
+
+## Group Analysis
+
+Resources related to the Analysis feature
+
+## Analysis [/analysis/{id}]
+
+An Analysis object has the following attributes:
+
++ id
++ rsi
++ start_date
++ end_date
++ start_price
++ end_price
++ gain_percent
++ loss_percent
++ duration
++ report_json
++ analysis_report (relationship of the related report type)
+
++ Parameters
+    + id: 2f07651a-ec89-412c-ac57-fe31e5bbc2f0 (required, string) - ID of the analysis
+
+### View an Analysis Detail [GET]
+
++ Response 200 (application/json)
+
+        {
+            "id": "2f07651a-ec89-412c-ac57-fe31e5bbc2f0",
+            "rsi": 29.9,
+            "start_date": "2019-02-25 23:32:29",
+            "end_date": "2019-02-26 23:32:29",
+            "start_price": 0.003,
+            "end_price": 0.005,
+            "gain_percent": 60.23,
+            "loss_percent": 00,
+            "duration": "45:00",
+            "complete": true,
+            "report_data_json": ```[
+                {
+                    "rsi": 10.12,
+                    "price": 0.003
+                },
+                {
+                  "rsi": 11.12,
+                  "price": 0.004
+                }
+            ]```,
+            "analysis_report": "2f07651a-ec89-412c-ac57-fe31e5bbc3f7"
+        }
+
+## Crypto Currency Analysis [/crypto-currency/{crypto_currency_symbol}/analysis/{analysis_id}]
+
++ Parameters
+    + crypto_currency_symbol: BTC (required, string) - Symbol of the crypto currency
+    + analysis_id: 2f07651a-ec89-412c-ac57-fe31e5bbc2f0 (required, string) - Id of the analysis
+
+### Get all analysis of a crypto currency [GET]
+
++ Response 200 (application/json)
+
+        {
+            "crypto_currency_id": "2f07651a-ec89-412c-ac57-fe31e5bbc2f0",
+            "crypto_currency_name": "Bitcoin",
+            "crypto_curreny_symbol": "BTC",
+            "total_increase_percent" 20.42
+            "total_loss_percent": 10.11,
+            "total_percent": 10.31,
+            "analysis": [
+                {
+                    "id": "2f07651a-ec89-412c-ac57-fe31e5bbc2f0",
+                    "date": "2019-02-25 23:32:29",
+                    "start_price": 0.003,
+                    "end_price": 0.004
+                    "total_percent": 24.14,
+                    "duration": "45:00",
+                    "complete": true
+                }
+            ]
+        }
+
+## All Analysis [/analysis]
+
+### Get All Crypto Currency Analysis [GET]
+
++ Response 200 (application/json)
+
+        [
+            {
+              "crypto_currency_id": "2f07651a-ec89-412c-ac57-fe31e5bbc2f0",
+              "crypto_currency_name" "Bitcoin",
+              "crypto_currency_synbol": "BTC",
+              "analysis_count": 4,
+              "total_increase_percent": 20.42,
+              "total_loss_percent": 10.11,
+              "total_overall_percent": 10.31,
+              "complete": true
+            }
+        ]
