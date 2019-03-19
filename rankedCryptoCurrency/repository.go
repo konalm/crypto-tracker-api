@@ -130,9 +130,6 @@ func GetCryptoCurrencyData(
   for rows.Next() {
     i ++
 
-    fmt.Println("i >> ")
-    fmt.Println(i)
-
     var crypto CryptoCurrencyData
     crypto.SellIndicator = false
     crypto.BuyIndicator = false
@@ -151,7 +148,6 @@ func GetCryptoCurrencyData(
       if err := json.Unmarshal(trendStats, &crypto.TrendStats); err != nil {
         fmt.Println("Error unmarshalling trend stat")
         fmt.Println(err.Error())
-        // panic(err.Error())
       } else {
         fmt.Println("UNMARSHAL SUCCESS")
       }
@@ -159,35 +155,8 @@ func GetCryptoCurrencyData(
       fmt.Println("TREND STAT IS NULL")
     }
 
-    fmt.Println("trend stats string >>>")
-    fmt.Println(string(trendStats))
-
     crypto.InWallet =
       walletState.CheckWalletStateContainsCurrency(currenciesInWallet, crypto.Name)
-
-      // [
-      //   {
-      //     "Time_period":"15min",
-      //     "Rsi":0,
-      //     "RsiStats": {
-      //       "Rsi":8.945215690713681,
-      //       "Smoothing50":23.662929054564614,
-      //       "Smoothing100":24.63802365226256,
-      //       "Smoothing250":0
-      //     },
-      //     "RateChange":0.1668312134390204,
-      //     "MovingAverages":   {
-      //       "LengthOf10":4087.785799999999,
-      //       "LengthOf25":4153.061264,
-      //       "LengthOf50":4051.5892340000005,
-      //       "LengthOf100":3941.360246000001
-      //     }
-      //     },
-      //     {
-      //       "Time_period":"1hr",
-      //       "Rsi":0,
-      //       "RsiStats":{
-      //         "Rsi":90.6777394864817,"Smoothing50":0,"Smoothing100":0,"Smoothing250":0},"RateChange":0.23625131099498817,"MovingAverages":{"LengthOf10":4184.65709,"LengthOf25":4005.598136,"LengthOf50":0,"LengthOf100":0}},{"Time_period":"3hr","Rsi":0,"RsiStats":{"Rsi":0,"Smoothing50":0,"Smoothing100":0,"Smoothing250":0},"RateChange":0.8841767659407507,"MovingAverages":{"LengthOf10":0,"LengthOf25":0,"LengthOf50":0,"LengthOf100":0}},{"Time_period":"24hr","Rsi":0,"RsiStats":{"Rsi":0,"Smoothing50":0,"Smoothing100":0,"Smoothing250":0},"RateChange":-8.965256265633617,"MovingAverages":{"LengthOf10":0,"LengthOf25":0,"LengthOf50":0,"LengthOf100":0}}]
 
     if crypto.TrendStats != nil {
       fifteenMinTrendStat := crypto.TrendStats[0]
@@ -204,8 +173,6 @@ func GetCryptoCurrencyData(
 
     cryptoCurrencyData = append(cryptoCurrencyData, crypto)
   }
-
-  fmt.Println("Get crypto currency data >> DONE !!")
 
   return cryptoCurrencyData
 }

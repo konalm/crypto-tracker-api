@@ -7,6 +7,9 @@ import (
 )
 
 
+/**
+ *
+ */
 func CreateDeposit(cryptoCurrency string, amount float64) string {
   fmt.Println("create deposit")
 

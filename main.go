@@ -17,7 +17,7 @@ func main() {
 
   appRouter := router.Index()
 
-// rsi.HandleRsi()
+  // rsi.HandleRsi()
 
 	cronJobs.HandleBitcoinRate()
   cronJobs.HandleRankedCryptoCurrencyUpdate()

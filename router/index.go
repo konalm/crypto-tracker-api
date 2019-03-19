@@ -21,6 +21,10 @@ func Index() *mux.Router {
   router.HandleFunc("/login", authentication.Login).Methods("POST", "OPTIONS")
   router.HandleFunc("/auth-verification", authentication.AuthCheck).Methods("GET")
 
+  router.HandleFunc("/analysis", handler.GetAnalysis).Methods("GET")
+  router.HandleFunc("/crypto-currency/{crypto_symbol}/analysis", handler.GetCryptoCurrencyAnalysis).Methods("GET")
+  router.HandleFunc("/analysis/{id}", handler.GetAnalysisItem).Methods("GET")
+
   authRouter := router.NewRoute().Subrouter()
   authRouter.HandleFunc("/crypto-data", handler.GetCryptoCurrencyData).Methods("GET")
   authRouter.HandleFunc("/setup-wallet", handler.SetupWallet).Methods("POST")
