@@ -21,6 +21,8 @@ func HandleBitcoinRate() {
     cryptoRatesController.InsertCryptoRates(cryptoRates)
     rsi.HandleRsi()
     // indicatorReporter.ReportIndicatorsViaEmail(1)
+    
+    httpRequests.StartAnalysisReports()
     httpRequests.UpdateAnalysisReports()
   })
 }

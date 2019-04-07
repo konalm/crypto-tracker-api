@@ -7,6 +7,7 @@ import (
 	"sort"
 	"stelita-api/db"
 	"stelita-api/errorReporter"
+	// "stelita-api/httpRequests"
 )
 
 type BitcoinRate struct {

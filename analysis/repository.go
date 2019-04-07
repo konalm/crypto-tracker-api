@@ -1,7 +1,6 @@
 package analysis
 
 import (
-  "fmt"
   "encoding/json"
   "stelita-api/db"
 )
@@ -10,8 +9,6 @@ import (
  *
  */
 func GetAnalysis() []CryptoCurrencyAnalysis {
-  fmt.Println("REPO >> Get Analysis")
-
   conn := db.Conn()
   defer conn.Close()
 
@@ -20,7 +17,8 @@ func GetAnalysis() []CryptoCurrencyAnalysis {
       logo.img logo_img_path,
       IF (SUM(gain_percent) IS NULL, 0.00, SUM(gain_percent)) total_gain_percent,
       IF (SUM(loss_percent) IS NULL, 0.00, SUM(loss_percent)) total_loss_percent,
-      SUM(CASE WHEN complete = 0 THEN 1 ELSE 1 END) is_complete_count
+      SUM(CASE WHEN complete = 0 THEN 1 ELSE 1 END) is_complete_count,
+      COUNT(crypto_currency) total_analysis_reports
     FROM analysis
 
     INNER JOIN ranked_crypto_currencies ranked_crypto
@@ -47,6 +45,7 @@ func GetAnalysis() []CryptoCurrencyAnalysis {
       &cryptoCurrencyAnalysis.TotalGainPercent,
       &cryptoCurrencyAnalysis.TotalLossPercent,
       &cryptoCurrencyAnalysis.InProgressCount,
+      &cryptoCurrencyAnalysis.AnalysisCount,
     )
     if err != nil {
       panic(err.Error())
@@ -73,6 +72,7 @@ func GetCryptoCurrencyAnalysis(cryptoCurrency string) CryptoCurrencyAnalysis {
     `SELECT
       IF(ranked_crypto.name IS NULL, "", ranked_crypto.name) name,
       IF(logo.img IS NULL, "", logo.img) logo_img_path,
+      a.id,
       a.start_date,
       a.start_value,
       IF(a.end_value IS NULL, 0.00, a.end_value) end_value,
@@ -101,6 +101,7 @@ func GetCryptoCurrencyAnalysis(cryptoCurrency string) CryptoCurrencyAnalysis {
     err := rows.Scan(
       &cryptoCurrencyAnalysis.CryptoCurrency,
       &cryptoCurrencyAnalysis.CryptoCurrencyLogoImgPath,
+      &analysis.Id,
       &analysis.StartDate,
       &analysis.StartPrice,
       &analysis.EndPrice,
@@ -108,6 +109,8 @@ func GetCryptoCurrencyAnalysis(cryptoCurrency string) CryptoCurrencyAnalysis {
       &analysis.LossPercent,
     )
     if err != nil { panic(err.Error()) }
+
+    analysis.AveragePercent = analysis.GainPercent - analysis.LossPercent
 
     cryptoCurrencyAnalysis.TotalGainPercent += analysis.GainPercent
     cryptoCurrencyAnalysis.TotalLossPercent += analysis.LossPercent
@@ -130,12 +133,15 @@ func GetAnalysisItem(id string) Analysis {
   defer conn.Close()
 
   query :=
-    `SELECT time_interval,
+    `SELECT crypto_currency crypto_symbol,
+      ranked_crypto.name crypto_currency,
+      logo.img logo_img_path,
+      time_interval,
       smoothing,
       start_value,
       rsi,
       start_date,
-      IF (end_value IS NULL, "", end_value) end_value,
+      IF (end_value IS NULL, 0.00, end_value) end_value,
       IF (end_date IS NULL, "", end_date) end_date,
       IF (gain_percent IS NULL, 0.00, gain_percent) gain_percent,
       IF (loss_Percent IS NULL, 0.00, loss_percent) loss_percent,
@@ -144,7 +150,14 @@ func GetAnalysisItem(id string) Analysis {
       reports_json
 
     FROM analysis a
-    WHERE id = ?`
+
+    INNER JOIN ranked_crypto_currencies ranked_crypto
+      On ranked_crypto.symbol = a.crypto_currency
+
+    INNER JOIN crypto_currency_logos logo
+      ON logo.currency = ranked_crypto.name
+
+    WHERE a.id = ?`
 
   stmt := conn.QueryRow(query, id)
 
@@ -152,6 +165,9 @@ func GetAnalysisItem(id string) Analysis {
   var dataReportJson string
 
   err := stmt.Scan(
+           &analysis.CryptoSymbol,
+           &analysis.CryptoCurrency,
+           &analysis.CryptoCurrencyLogoImgPath,
            &analysis.TimeInterval,
            &analysis.Smoothing,
            &analysis.StartPrice,
@@ -166,6 +182,8 @@ func GetAnalysisItem(id string) Analysis {
            &dataReportJson,
          )
   if err != nil { panic(err.Error()) }
+
+  analysis.AveragePercent = analysis.GainPercent - analysis.LossPercent
 
   if dataReportJson != "" {
     err := json.Unmarshal([]byte(dataReportJson), &analysis.DataReport)

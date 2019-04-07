@@ -9,6 +9,7 @@ import (
   "stelita-api/env"
   "stelita-api/config"
   // "stelita-api/rsi"
+  "stelita-api/httpRequests"
 )
 
 
@@ -17,7 +18,8 @@ func main() {
 
   appRouter := router.Index()
 
-  // rsi.HandleRsi()
+  httpRequests.StartAnalysisReports()
+  httpRequests.UpdateAnalysisReports()
 
 	cronJobs.HandleBitcoinRate()
   cronJobs.HandleRankedCryptoCurrencyUpdate()

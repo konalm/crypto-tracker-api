@@ -8,11 +8,16 @@ type CryptoCurrencyAnalysis struct {
   TotalLossPercent float64
   AveragePercent float64
   InProgressCount int
+  AnalysisCount int
   AnalysisItems []Analysis
 }
 
 
 type Analysis struct {
+  Id string
+  CryptoSymbol string
+  CryptoCurrency string
+  CryptoCurrencyLogoImgPath string
   TimeInterval string
   Smoothing string
   StartPrice float64
@@ -23,6 +28,7 @@ type Analysis struct {
   EndDate string
   GainPercent float64
   LossPercent float64
+  AveragePercent float64
   DurationHours int
   Complete bool
   DataReport []AnalysisReportDataPoint

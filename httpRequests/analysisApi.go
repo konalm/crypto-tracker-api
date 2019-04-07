@@ -3,26 +3,65 @@ package httpRequests
 import (
   "net/http"
   "fmt"
-  "io/ioutil"
+  "strconv"
+  "stelita-api/config"
+  // "stelita-api/errorReporter"
+  "stelita-api/eventReport"
 )
 
 
 /**
  *
+
  */
 func UpdateAnalysisReports() {
-  fmt.Println("http requests >> update analysis reports")
-
-  response, err := http.Get("http://138.68.167.173:3001/update-analysis-report")
+  response, err := http.Get(config.ANALYSIS_API_URL + "/update-analysis-report")
   if err != nil {
-    fmt.Println(err)
+    eventReport.ReportEvent("21e90f38-3a6c-4599-9a22-2fb5de69c05b",
+      "update analysis reports http request, could not connect to Analysis API",
+      true,
+    )
+    return
+  }
+
+  if response.StatusCode != 200 {
+    statusCodeString := strconv.Itoa(response.StatusCode)
+    eventReport.ReportEvent("21e90f38-3a6c-4599-9a22-2fb5de69c05b",
+      "Http request to analysis reports resulted in status code " + statusCodeString,
+      true,
+    )
+    return
+  }
+  defer response.Body.Close()
+
+  eventReport.ReportEvent("21e90f38-3a6c-4599-9a22-2fb5de69c05b", "", false)
+}
+
+
+/**
+ *
+ */
+func StartAnalysisReports() {
+  fmt.Println("http requests >> start analysis reports")
+
+  response, err := http.Get(config.ANALYSIS_API_URL + "/start-analysis-cryptos-to-analyse")
+  if err != nil {
+    fmt.Println("start analysis reports htttp request, could not connect to Analysis API")
+    eventReport.ReportEvent("2da0da5a-2872-4528-bd8f-e29eced4df22",
+      "start analysis reports htttp request, could not connect to Analysis API",
+      true,
+    )
+    return
+  }
+
+  if response.StatusCode != 200 {
+    eventReport.ReportEvent("2da0da5a-2872-4528-bd8f-e29eced4df22",
+      "Http request to start analysis reports resulted in status code " + strconv.Itoa(response.StatusCode),
+      true,
+    )
+  } else {
+    eventReport.ReportEvent("2da0da5a-2872-4528-bd8f-e29eced4df22", "", false)
   }
 
   defer response.Body.Close()
-  body, err := ioutil.ReadAll(response.Body)
-  if err != nil {
-    fmt.Println(err)
-  }
-
-  fmt.Println(body)
 }
