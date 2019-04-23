@@ -9,7 +9,11 @@ import (
   "stelita-api/env"
   "stelita-api/config"
   // "stelita-api/rsi"
-  "stelita-api/httpRequests"
+  // "stelita-api/httpRequests"
+  "stelita-api/errorReporter"
+
+  // "stelita-api/cryptoRatesController"
+  // "stelita-api/fetchCryptoRates"
 )
 
 
@@ -18,9 +22,15 @@ func main() {
 
   appRouter := router.Index()
 
-  httpRequests.StartAnalysisReports()
-  httpRequests.UpdateAnalysisReports()
+  // httpRequests.StartAnalysisReports()
+  // httpRequests.UpdateAnalysisReports()
 
+  // cryptoRates := fetchCryptoRates.FetchCryptoRates()
+  // cryptoRatesController.InsertCryptoRates(cryptoRates)
+  // cryptoRates := fetchCryptoRates.FetchCryptoRatesFromCoinMarketCapApi()
+  // cryptoRatesController.InsertCryptoRatesFromCoinMarketCapApi(cryptoRates)
+
+  errorReporter.ReportError("Call Crons")
 	cronJobs.HandleBitcoinRate()
   cronJobs.HandleRankedCryptoCurrencyUpdate()
 

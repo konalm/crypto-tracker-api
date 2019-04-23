@@ -17,5 +17,5 @@ func ReportEvent(event string, message string, error bool) {
     errorReporter.ReportError(message)
   }
 
-  InsertEventReport(event, message, error)
+  InsertEventReport(event, message, !error)
 }

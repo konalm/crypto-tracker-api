@@ -1,7 +1,7 @@
 package rsi
 
 import (
-  // "fmt"
+  "fmt"
   "math"
   "stelita-api/structs"
   // "stelita-api/abstractRatesByTimePeriod"
@@ -76,6 +76,8 @@ var DummyCryptoRates = []structs.CryptoRate {
  *
  */
 func CalculateRsi(cryptoRates []structs.CryptoRate, smoothingCount int) float64 {
+  fmt.Println("calculate RSI")
+
   if len(cryptoRates) < 15 {
     return 0.00
   }

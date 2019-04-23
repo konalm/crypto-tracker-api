@@ -10,6 +10,7 @@ import (
 	"stelita-api/db"
 	"stelita-api/reports"
 	"stelita-api/errorReporter"
+	"stelita-api/fetchCryptoRates"
 )
 
 
@@ -35,6 +36,60 @@ func InsertCryptoRates(rates []structs.BitcoinRate) {
     if rate.Asset_id_quote == "USD" { rate.Asset_id_quote = "BTC" }
 
     queryValues = append(queryValues, rate.Asset_id_quote, formattedDate, rate.Rate, minOfCronJob)
+  }
+
+  query = removeLastComma(query)
+  stmt, _ := dbConn.Prepare(query)
+	defer stmt.Close()
+
+	insertSuccess := true
+  _, err := stmt.Exec(queryValues...)
+  if err != nil {
+		errorReporter.ReportError("Inserting crypo rates")
+    insertSuccess = false
+  }
+
+	processListQuery := "SHOW PROCESSLIST";
+	stmtProcessList, err := dbConn.Query(processListQuery)
+	if err != nil {
+		errorReporter.ReportError("Executing process list on insert crypto rates")
+		fmt.Println("stmt process list")
+	}
+	defer stmtProcessList.Close()
+
+	i := 0
+	for stmtProcessList.Next() {
+		i ++
+	}
+
+  reports.InsertCryptoReport("cryptoRates", insertSuccess, i)
+}
+
+/**
+ *
+ */
+func InsertCryptoRatesFromCoinMarketCapApi(rates []fetchCryptoRates.CoinMarketCapCryptoCurrency) {
+	fmt.Println("Insert crypto rates from coin market cap api")
+
+  dbConn := db.Conn()
+	defer dbConn.Close()
+
+  query := `INSERT INTO crypto_rates (currency, date, closing_price, min)`
+  var queryValues = []interface{}{}
+
+  timeOfCronJob := time.Now()
+  minOfCronJob := timeOfCronJob.Minute()
+
+  for i, rate := range rates {
+    query += buildRateModalQuery(i)
+    formattedDate := formatDateForMysql(rate.Last_updated)
+
+    queryValues = append(queryValues,
+			rate.Symbol,
+			formattedDate,
+			rate.Quote.BTC.Price,
+			minOfCronJob,
+		)
   }
 
   query = removeLastComma(query)

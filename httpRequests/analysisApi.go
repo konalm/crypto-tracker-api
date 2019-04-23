@@ -5,8 +5,8 @@ import (
   "fmt"
   "strconv"
   "stelita-api/config"
-  // "stelita-api/errorReporter"
   "stelita-api/eventReport"
+  "stelita-api/logger"
 )
 
 
@@ -15,12 +15,15 @@ import (
 
  */
 func UpdateAnalysisReports() {
+  logger.WriteLog("update analysis reports HTTP REQUEST", "")
+
   response, err := http.Get(config.ANALYSIS_API_URL + "/update-analysis-report")
   if err != nil {
     eventReport.ReportEvent("21e90f38-3a6c-4599-9a22-2fb5de69c05b",
       "update analysis reports http request, could not connect to Analysis API",
       true,
     )
+    logger.WriteLog("update analysis reports http request, could not connect to Analysis API", "")
     return
   }
 
@@ -30,6 +33,7 @@ func UpdateAnalysisReports() {
       "Http request to analysis reports resulted in status code " + statusCodeString,
       true,
     )
+    logger.WriteLog("Http request to analysis reports resulted in status code " + statusCodeString, "")
     return
   }
   defer response.Body.Close()
@@ -42,7 +46,7 @@ func UpdateAnalysisReports() {
  *
  */
 func StartAnalysisReports() {
-  fmt.Println("http requests >> start analysis reports")
+  logger.WriteLog("start analysis reports HTTP REQUEST", "")
 
   response, err := http.Get(config.ANALYSIS_API_URL + "/start-analysis-cryptos-to-analyse")
   if err != nil {

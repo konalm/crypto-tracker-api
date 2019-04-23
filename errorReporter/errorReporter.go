@@ -27,9 +27,6 @@ func ReportError(errorMessage string) {
 
   logger := log.New(f, "", log.LstdFlags)
   logger.Println(">> ", errorMessage)
-
-  /* send email */
-  send(errorMessage)
 }
 
 
