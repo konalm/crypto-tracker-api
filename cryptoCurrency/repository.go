@@ -12,8 +12,11 @@ func GetCryptoCurrencyData(symbol string) CryptoCurrencyItemData {
   conn := db.Conn()
   defer conn.Close()
 
-  query :=  `SELECT name, symbol, rank, market_cap, volume_24h
+  query :=  `SELECT name, symbol, rank, market_cap, volume_24h,
+    logo.img
     FROM ranked_crypto_currencies
+    LEFT JOIN crypto_currency_logos logo
+      on logo.currency = name
     WHERE symbol = ?`
 
   stmt := conn.QueryRow(query, symbol)
@@ -25,6 +28,7 @@ func GetCryptoCurrencyData(symbol string) CryptoCurrencyItemData {
     &cryptoCurrencyData.Rank,
     &cryptoCurrencyData.MarketCap,
     &cryptoCurrencyData.Volume24h,
+    &cryptoCurrencyData.Img,
   )
 
   if err != nil {
