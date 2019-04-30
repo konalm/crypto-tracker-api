@@ -6,7 +6,7 @@ import (
   "net/http"
   "github.com/gorilla/context"
   "encoding/json"
-  // "strings"
+  "strconv"
   _ "github.com/go-sql-driver/mysql"
   "github.com/gorilla/mux"
   "stelita-api/rankedCryptoCurrency"
@@ -16,6 +16,7 @@ import (
   "stelita-api/cryptoRatesController"
   "stelita-api/abstractRatesByTimePeriod"
   "stelita-api/rsi"
+  "stelita-api/cryptoRates"
 )
 
 
@@ -62,4 +63,30 @@ func GetCryptoCurrencyItemData(w http.ResponseWriter, r *http.Request) {
   cryptoCurrencyData.ClosingPrice = cryptoCurrencyData.Rates[0].ClosingPrice
 
   json.NewEncoder(w).Encode(cryptoCurrencyData)
+}
+
+/**
+ *
+ */
+func GetCryptoRates(w http.ResponseWriter, r *http.Request) {
+  fmt.Println("Get crypto rates !!")
+
+  params := mux.Vars(r)
+  cryptoSymbol := params["symbol"]
+
+  dataCountString := params["data_count"]
+  dataCount, err := strconv.Atoi(dataCountString)
+  if err != nil {
+    panic("unable to convert data count to number")
+  }
+
+  fmt.Println("symbol >>")
+  fmt.Println(cryptoSymbol)
+
+  fmt.Println("data count >>")
+  fmt.Println(dataCount)
+
+  cryptoRates := cryptoRates.GetCryptoRates(cryptoSymbol, dataCount)
+
+  json.NewEncoder(w).Encode(cryptoRates)
 }

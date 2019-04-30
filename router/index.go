@@ -37,6 +37,7 @@ func Index() *mux.Router {
   authRouter.HandleFunc("/users-latest-wallet", handler.GetUserLatestWalletState).Methods("GET")
   authRouter.HandleFunc("/event-reports/{event_id}", handler.GetEventReports).Methods("GET")
   authRouter.HandleFunc("/crypto-currency/{symbol}", handler.GetCryptoCurrencyItemData).Methods("GET")
+  authRouter.HandleFunc("/crypto-currency/{symbol}/closing_prices/{data_count}", handler.GetCryptoRates).Methods("GET")
   authRouter.Use(middleware.Auth)
 
   var dir string
